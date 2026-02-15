@@ -1,0 +1,6 @@
+versel.json{
+  "rewrites": [
+    { "source": "/", "destination": "/clicker-game/index.html" },
+    { "source": "/:path*", "destination": "/clicker-game/:path*" }
+  ]
+}
