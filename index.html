@@ -324,6 +324,227 @@
     .rank-info .power { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem; }
     .rank-score { font-family: 'Unbounded', sans-serif; font-weight: 700; color: var(--accent); font-size: 1.1rem; }
     .tg-badge { font-size: 0.7rem; background: #0088cc; color: white; padding: 0.2rem 0.5rem; border-radius: 6px; margin-left: 0.5rem; }
+    
+    /* РАЗДЕЛ ДРУЗЕЙ */
+    .friends-header {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 184, 0, 0.05));
+      border-radius: 20px;
+      border: 2px solid rgba(255, 215, 0, 0.2);
+    }
+    .friends-header h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+      background: var(--gradient-1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .friends-subtitle {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+    .referral-reward-card {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+      padding: 1.5rem;
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 20px;
+      margin-bottom: 1.5rem;
+    }
+    .reward-icon {
+      font-size: 4rem;
+      animation: float 3s ease-in-out infinite;
+    }
+    .reward-info h3 {
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+    }
+    .reward-amount {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 900;
+      background: var(--gradient-1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.3rem;
+    }
+    .reward-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .referral-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .stat-item {
+      padding: 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      text-align: center;
+    }
+    .stat-item .stat-value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2rem;
+      font-weight: 900;
+      background: var(--gradient-1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.3rem;
+    }
+    .stat-item .stat-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .invite-button {
+      width: 100%;
+      padding: 1.25rem;
+      background: var(--gradient-1);
+      border: none;
+      border-radius: 16px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem;
+      font-weight: 900;
+      color: #000;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+      transition: all 0.3s;
+    }
+    .invite-button:active {
+      transform: scale(0.97);
+    }
+    .invite-icon {
+      font-size: 1.5rem;
+    }
+    .referral-link-card {
+      padding: 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      margin-bottom: 1.5rem;
+    }
+    .link-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .link-box {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      padding: 1rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+    .link-box #linkText {
+      flex: 1;
+      font-size: 0.85rem;
+      color: var(--text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-family: monospace;
+    }
+    .copy-btn {
+      padding: 0.5rem 1rem;
+      background: var(--accent-soft);
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .copy-btn:active {
+      transform: scale(0.9);
+    }
+    .friends-list-header {
+      margin: 2rem 0 1rem 0;
+    }
+    .friends-list-header h3 {
+      font-size: 1rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .friends-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .friend-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+    .friend-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--gradient-1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+    .friend-info {
+      flex: 1;
+    }
+    .friend-name {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 0.2rem;
+    }
+    .friend-reward {
+      font-size: 0.75rem;
+      color: var(--success);
+      font-weight: 600;
+    }
+    .friend-score {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.9rem;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .empty-friends {
+      text-align: center;
+      padding: 3rem 1.5rem;
+      color: var(--text-muted);
+    }
+    .empty-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+    .empty-text {
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+    .empty-hint {
+      font-size: 0.85rem;
+      opacity: 0.7;
+    }
   </style>
 </head>
 <body>
@@ -409,6 +630,57 @@
         </div>
       </section>
 
+      <section class="panel" id="panel-friends">
+        <div class="friends-header">
+          <h2>👥 Пригласи друзей</h2>
+          <p class="friends-subtitle">Получай награды за каждого друга!</p>
+        </div>
+        
+        <div class="referral-reward-card">
+          <div class="reward-icon">🎁</div>
+          <div class="reward-info">
+            <h3>Награда за друга</h3>
+            <div class="reward-amount">+5,000 🪙</div>
+            <p class="reward-desc">+ 10% от заработка друга</p>
+          </div>
+        </div>
+
+        <div class="referral-stats">
+          <div class="stat-item">
+            <div class="stat-value" id="friendsCount">0</div>
+            <div class="stat-label">Приглашено</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="friendsReward">0</div>
+            <div class="stat-label">Заработано</div>
+          </div>
+        </div>
+
+        <button class="invite-button" id="inviteButton">
+          <span class="invite-icon">📤</span>
+          <span class="invite-text">Пригласить друга</span>
+        </button>
+
+        <div class="referral-link-card">
+          <div class="link-label">Твоя реферальная ссылка:</div>
+          <div class="link-box" id="referralLink">
+            <span id="linkText">Загрузка...</span>
+            <button class="copy-btn" id="copyLinkBtn">📋</button>
+          </div>
+        </div>
+
+        <div class="friends-list-header">
+          <h3>Твои друзья</h3>
+        </div>
+        <div class="friends-list" id="friendsList">
+          <div class="empty-friends">
+            <div class="empty-icon">👥</div>
+            <div class="empty-text">Пока никого нет</div>
+            <div class="empty-hint">Пригласи друзей и получай награды!</div>
+          </div>
+        </div>
+      </section>
+
       <section class="panel" id="panel-ranking">
         <div class="ranking-header">
           <h2>🏆 Рейтинг игроков</h2>
@@ -426,13 +698,13 @@
         <span class="nav-tab-icon">🎮</span>
         <span class="nav-tab-label">Игра</span>
       </button>
+      <button class="nav-tab" data-tab="friends">
+        <span class="nav-tab-icon">👥</span>
+        <span class="nav-tab-label">Друзья</span>
+      </button>
       <button class="nav-tab" data-tab="stats">
         <span class="nav-tab-icon">📊</span>
         <span class="nav-tab-label">Статы</span>
-      </button>
-      <button class="nav-tab" data-tab="profile">
-        <span class="nav-tab-icon">👤</span>
-        <span class="nav-tab-label">Профиль</span>
       </button>
       <button class="nav-tab" data-tab="ranking">
         <span class="nav-tab-icon">🏆</span>
@@ -477,12 +749,17 @@
       purchasesCount: 0,
       startTime: Date.now(),
       lastSync: 0,
+      referrals: [],
+      referralRewards: 0,
       upgrades: [
-        { id: 'cursor', name: 'Курсор', desc: '+1 за клик', cost: 10, value: 1, count: 0 },
-        { id: 'grandma', name: 'Бабушка', desc: '+5 за клик', cost: 50, value: 5, count: 0 },
-        { id: 'farm', name: 'Ферма', desc: '+25 за клик', cost: 200, value: 25, count: 0 },
-        { id: 'mine', name: 'Шахта', desc: '+100 за клик', cost: 1000, value: 100, count: 0 },
-        { id: 'factory', name: 'Завод', desc: '+500 за клик', cost: 5000, value: 500, count: 0 },
+        { id: 'bot', name: '🤖 Торговый бот', desc: '+1 за тап', cost: 10, value: 1, count: 0, emoji: '🤖' },
+        { id: 'mining', name: '⛏️ Майнинг ферма', desc: '+5 за тап', cost: 100, value: 5, count: 0, emoji: '⛏️' },
+        { id: 'exchange', name: '💱 Криптобиржа', desc: '+25 за тап', cost: 500, value: 25, count: 0, emoji: '💱' },
+        { id: 'blockchain', name: '⛓️ Блокчейн сеть', desc: '+100 за тап', cost: 2500, value: 100, count: 0, emoji: '⛓️' },
+        { id: 'nft', name: '🎨 NFT студия', desc: '+500 за тап', cost: 10000, value: 500, count: 0, emoji: '🎨' },
+        { id: 'defi', name: '🏦 DeFi платформа', desc: '+2500 за тап', cost: 50000, value: 2500, count: 0, emoji: '🏦' },
+        { id: 'metaverse', name: '🌐 Метавселенная', desc: '+10000 за тап', cost: 200000, value: 10000, count: 0, emoji: '🌐' },
+        { id: 'ai', name: '🧠 AI суперкомпьютер', desc: '+50000 за тап', cost: 1000000, value: 50000, count: 0, emoji: '🧠' },
       ]
     };
 
@@ -507,6 +784,97 @@
 
     function getPerClick() {
       return 1 + state.upgrades.reduce((sum, u) => sum + u.value * u.count, 0);
+    }
+    
+    function getReferralLink() {
+      const botUsername = 'appminitested_bot'; // Замени на username бота
+      const userId = getUserId();
+      return `https://t.me/${botUsername}?start=ref_${userId}`;
+    }
+    
+    function checkReferral() {
+      if (!TgWebApp?.initDataUnsafe?.start_param) return null;
+      const startParam = TgWebApp.initDataUnsafe.start_param;
+      if (startParam.startsWith('ref_')) {
+        return startParam.replace('ref_', '');
+      }
+      return null;
+    }
+    
+    async function processReferral() {
+      const referrerId = checkReferral();
+      if (!referrerId || !db || !tgUser) return;
+      
+      const myId = getUserId();
+      if (referrerId === myId) return; // Нельзя пригласить самого себя
+      
+      try {
+        // Проверяем что еще не начислили награду
+        const myDoc = await db.collection('players').doc(myId).get();
+        if (myDoc.exists && myDoc.data().referredBy) return; // Уже был приглашен
+        
+        // Начисляем награду рефереру
+        const refDoc = await db.collection('players').doc(referrerId).get();
+        if (refDoc.exists) {
+          const refData = refDoc.data();
+          const newReferrals = [...(refData.referrals || []), {
+            id: myId,
+            name: getDisplayName(),
+            joinedAt: Date.now()
+          }];
+          
+          await db.collection('players').doc(referrerId).update({
+            referrals: newReferrals,
+            referralRewards: (refData.referralRewards || 0) + 5000,
+            score: Number(refData.score || 0) + 5000
+          });
+          
+          // Сохраняем что мы были приглашены
+          await db.collection('players').doc(myId).set({
+            referredBy: referrerId
+          }, { merge: true });
+          
+          console.log('✅ Реферальная награда начислена!');
+        }
+      } catch (e) {
+        console.error('Ошибка обработки реферала:', e);
+      }
+    }
+    
+    function renderFriends() {
+      if (!isTelegram) {
+        document.getElementById('friendsCount').textContent = '0';
+        document.getElementById('friendsReward').textContent = '0';
+        document.getElementById('linkText').textContent = 'Доступно только в Telegram';
+        document.getElementById('inviteButton').disabled = true;
+        return;
+      }
+      
+      const referralLink = getReferralLink();
+      document.getElementById('linkText').textContent = referralLink;
+      document.getElementById('friendsCount').textContent = state.referrals.length;
+      document.getElementById('friendsReward').textContent = formatNumber(state.referralRewards);
+      
+      const friendsList = document.getElementById('friendsList');
+      if (state.referrals.length === 0) {
+        friendsList.innerHTML = `
+          <div class="empty-friends">
+            <div class="empty-icon">👥</div>
+            <div class="empty-text">Пока никого нет</div>
+            <div class="empty-hint">Пригласи друзей и получай награды!</div>
+          </div>
+        `;
+      } else {
+        friendsList.innerHTML = state.referrals.map(friend => `
+          <div class="friend-item">
+            <div class="friend-avatar">👤</div>
+            <div class="friend-info">
+              <div class="friend-name">${friend.name}</div>
+              <div class="friend-reward">+5,000 🪙 получено</div>
+            </div>
+          </div>
+        `).join('');
+      }
     }
 
     function getLevel() {
@@ -551,6 +919,8 @@
         totalSpent: state.totalSpent.toString(),
         purchasesCount: state.purchasesCount,
         startTime: state.startTime,
+        referrals: state.referrals,
+        referralRewards: state.referralRewards,
         upgrades: state.upgrades.map(u => ({ ...u })),
         updatedAt: Date.now(),
       };
@@ -585,6 +955,8 @@
             state.totalSpent = BigInt(d.totalSpent || 0);
             state.purchasesCount = d.purchasesCount || 0;
             state.startTime = d.startTime || Date.now();
+            state.referrals = d.referrals || [];
+            state.referralRewards = d.referralRewards || 0;
             if (d.upgrades) {
               d.upgrades.forEach((u, i) => {
                 if (state.upgrades[i]) state.upgrades[i].count = u.count || 0;
@@ -593,6 +965,10 @@
             state.lastSync = d.updatedAt;
             render();
             console.log('✅ Синхронизировано с сервера');
+          } else {
+            // Загружаем только referrals даже если счет не обновился
+            state.referrals = d.referrals || [];
+            state.referralRewards = d.referralRewards || 0;
           }
         }
       } catch (e) { 
@@ -840,7 +1216,40 @@
         tab.classList.add('active');
         document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
         if (tab.dataset.tab === 'ranking') renderRanking();
+        if (tab.dataset.tab === 'friends') renderFriends();
       });
+    });
+    
+    // Кнопка приглашения
+    document.getElementById('inviteButton')?.addEventListener('click', () => {
+      if (!isTelegram) return;
+      const referralLink = getReferralLink();
+      const message = `🎮 Присоединяйся к Cosmic Clicker!\n\n💰 Тапай и зарабатывай монеты\n🚀 Прокачивай бизнес\n🏆 Соревнуйся с друзьями\n\n🎁 Бонус при регистрации по ссылке!`;
+      
+      TgWebApp.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent(message)}`);
+    });
+    
+    // Кнопка копирования ссылки
+    document.getElementById('copyLinkBtn')?.addEventListener('click', async () => {
+      const linkText = document.getElementById('linkText').textContent;
+      try {
+        await navigator.clipboard.writeText(linkText);
+        const btn = document.getElementById('copyLinkBtn');
+        btn.textContent = '✅';
+        setTimeout(() => btn.textContent = '📋', 2000);
+      } catch (e) {
+        // Fallback для старых браузеров
+        const input = document.createElement('input');
+        input.value = linkText;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        document.body.removeChild(input);
+        
+        const btn = document.getElementById('copyLinkBtn');
+        btn.textContent = '✅';
+        setTimeout(() => btn.textContent = '📋', 2000);
+      }
     });
 
     clickTarget.addEventListener('click', () => {
@@ -869,7 +1278,10 @@
     }
 
     (async () => {
-      if (db && tgUser) await loadFromFirebase();
+      if (db && tgUser) {
+        await processReferral(); // Обработка реферальной ссылки
+        await loadFromFirebase();
+      }
       await new Promise(resolve => loadState(resolve));
       render();
     })();
