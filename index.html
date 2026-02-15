@@ -52,14 +52,15 @@
       display: flex;
       flex-direction: column;
       padding: 1rem;
-      padding-bottom: calc(2rem + env(safe-area-inset-bottom));
+      padding-bottom: calc(100px + env(safe-area-inset-bottom));
     }
     .header {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 1rem 0;
-      margin-bottom: 0.5rem;
+      justify-content: center;
+      padding: 1.5rem 0 1rem 0;
+      margin-bottom: 1rem;
+      position: relative;
     }
     .logo {
       font-family: 'Orbitron', sans-serif;
@@ -87,17 +88,51 @@
       animation: pulse 1s infinite;
     }
     .nav-tabs {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
       display: flex;
-      gap: 0.5rem;
-      background: var(--surface);
-      padding: 0.5rem;
-      border-radius: 20px;
-      border: 2px solid var(--border);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+      gap: 0;
+      background: rgba(19, 19, 29, 0.95);
+      backdrop-filter: blur(20px);
+      padding: 0.5rem 0.5rem calc(0.5rem + env(safe-area-inset-bottom));
+      border-top: 2px solid var(--border);
+      box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.7);
+      justify-content: space-around;
     }
     .nav-tab {
-      padding: 0.8rem 1.1rem;
-      font-size: 0.9rem;
+      flex: 1;
+      padding: 0.75rem 0.25rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-family: 'Orbitron', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.35rem;
+      min-height: 64px;
+      position: relative;
+    }
+    .nav-tab-icon {
+      font-size: 1.6rem;
+      display: block;
+      transition: transform 0.3s;
+    }
+    .nav-tab-label {
+      font-size: 0.65rem;
+      display: block;
+      line-height: 1.2;
+    }
       font-weight: 700;
       color: var(--text-muted);
       background: transparent;
@@ -109,8 +144,21 @@
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
-    .nav-tab:hover { color: var(--text); transform: translateY(-2px); }
-    .nav-tab.active { background: var(--gradient-1); color: #000; font-weight: 900; box-shadow: 0 8px 25px rgba(255, 215, 0, 0.5); }
+    .nav-tab:hover { 
+      color: var(--text); 
+      background: rgba(255, 215, 0, 0.1);
+    }
+    .nav-tab:active {
+      transform: scale(0.95);
+    }
+    .nav-tab.active { 
+      background: rgba(255, 215, 0, 0.15);
+      color: var(--accent);
+    }
+    .nav-tab.active .nav-tab-icon {
+      transform: scale(1.1);
+      filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.6));
+    }
     .panel { display: none; flex: 1; animation: fadeIn 0.3s ease; }
     .panel.active { display: flex; flex-direction: column; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
@@ -283,12 +331,6 @@
     <header class="header">
       <div class="logo">💰 COSMIC CLICKER</div>
       <div class="sync-indicator" id="syncIndicator"></div>
-      <nav class="nav-tabs">
-        <button class="nav-tab active" data-tab="game">Игра</button>
-        <button class="nav-tab" data-tab="stats">Статистика</button>
-        <button class="nav-tab" data-tab="profile">Профиль</button>
-        <button class="nav-tab" data-tab="ranking">Рейтинг</button>
-      </nav>
     </header>
 
     <main class="content">
@@ -377,6 +419,26 @@
         </div>
       </section>
     </main>
+    
+    <!-- Мобильная навигация внизу -->
+    <nav class="nav-tabs">
+      <button class="nav-tab active" data-tab="game">
+        <span class="nav-tab-icon">🎮</span>
+        <span class="nav-tab-label">Игра</span>
+      </button>
+      <button class="nav-tab" data-tab="stats">
+        <span class="nav-tab-icon">📊</span>
+        <span class="nav-tab-label">Статы</span>
+      </button>
+      <button class="nav-tab" data-tab="profile">
+        <span class="nav-tab-icon">👤</span>
+        <span class="nav-tab-label">Профиль</span>
+      </button>
+      <button class="nav-tab" data-tab="ranking">
+        <span class="nav-tab-icon">🏆</span>
+        <span class="nav-tab-label">Топ</span>
+      </button>
+    </nav>
   </div>
 
   <script>
