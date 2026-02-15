@@ -70,13 +70,30 @@
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
+    .sync-indicator {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 10px #10b981;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .sync-indicator.syncing {
+      opacity: 1;
+      animation: pulse 1s infinite;
+    }
     .nav-tabs {
       display: flex;
-      gap: 0.25rem;
+      gap: 0.5rem;
       background: var(--surface);
-      padding: 0.25rem;
-      border-radius: 12px;
-      border: 1px solid var(--border);
+      padding: 0.5rem;
+      border-radius: 20px;
+      border: 2px solid var(--border);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
     }
     .nav-tab {
       padding: 0.8rem 1.1rem;
@@ -92,7 +109,7 @@
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
-    .nav-tab:hover { color: var(--text); }
+    .nav-tab:hover { color: var(--text); transform: translateY(-2px); }
     .nav-tab.active { background: var(--gradient-1); color: #000; font-weight: 900; box-shadow: 0 8px 25px rgba(255, 215, 0, 0.5); }
     .panel { display: none; flex: 1; animation: fadeIn 0.3s ease; }
     .panel.active { display: flex; flex-direction: column; }
@@ -265,6 +282,7 @@
   <div class="app">
     <header class="header">
       <div class="logo">💰 COSMIC CLICKER</div>
+      <div class="sync-indicator" id="syncIndicator"></div>
       <nav class="nav-tabs">
         <button class="nav-tab active" data-tab="game">Игра</button>
         <button class="nav-tab" data-tab="stats">Статистика</button>
@@ -374,11 +392,19 @@
     }
 
     let db = null;
+    let firebaseError = null;
     if (typeof FIREBASE_ENABLED !== 'undefined' && FIREBASE_ENABLED && typeof firebase !== 'undefined') {
       try {
         firebase.initializeApp(FIREBASE_CONFIG);
         db = firebase.firestore();
-      } catch (e) { console.warn('Firebase init error:', e); }
+        console.log('✅ Firebase подключен успешно');
+      } catch (e) { 
+        console.warn('❌ Firebase init error:', e);
+        firebaseError = e.message;
+      }
+    } else {
+      console.warn('⚠️ Firebase не настроен. Проверь config.js');
+      firebaseError = 'Firebase не настроен в config.js';
     }
 
     const state = {
@@ -388,6 +414,7 @@
       totalSpent: BigInt(0),
       purchasesCount: 0,
       startTime: Date.now(),
+      lastSync: 0,
       upgrades: [
         { id: 'cursor', name: 'Курсор', desc: '+1 за клик', cost: 10, value: 1, count: 0 },
         { id: 'grandma', name: 'Бабушка', desc: '+5 за клик', cost: 50, value: 5, count: 0 },
@@ -470,29 +497,49 @@
     async function saveToFirebase() {
       if (!db) return;
       try {
-        await db.collection('players').doc(getUserId()).set(getPlayerData(), { merge: true });
+        const data = getPlayerData();
+        state.lastSync = data.updatedAt;
+        await db.collection('players').doc(getUserId()).set(data, { merge: true });
       } catch (e) { console.warn('Firebase save error:', e); }
     }
 
     async function loadFromFirebase() {
       if (!db || !tgUser) return;
+      
+      const syncIndicator = document.getElementById('syncIndicator');
+      if (syncIndicator) syncIndicator.classList.add('syncing');
+      
       try {
         const doc = await db.collection('players').doc(getUserId()).get();
         if (doc.exists) {
           const d = doc.data();
-          state.score = BigInt(d.score || 0);
-          state.totalClicks = d.totalClicks || 0;
-          state.totalEarned = BigInt(d.totalEarned || 0);
-          state.totalSpent = BigInt(d.totalSpent || 0);
-          state.purchasesCount = d.purchasesCount || 0;
-          state.startTime = d.startTime || Date.now();
-          if (d.upgrades) {
-            d.upgrades.forEach((u, i) => {
-              if (state.upgrades[i]) state.upgrades[i].count = u.count || 0;
-            });
+          const remoteScore = BigInt(d.score || 0);
+          
+          // Используем данные с сервера если они новее
+          if (d.updatedAt > (state.lastSync || 0) && remoteScore > state.score) {
+            state.score = remoteScore;
+            state.totalClicks = d.totalClicks || 0;
+            state.totalEarned = BigInt(d.totalEarned || 0);
+            state.totalSpent = BigInt(d.totalSpent || 0);
+            state.purchasesCount = d.purchasesCount || 0;
+            state.startTime = d.startTime || Date.now();
+            if (d.upgrades) {
+              d.upgrades.forEach((u, i) => {
+                if (state.upgrades[i]) state.upgrades[i].count = u.count || 0;
+              });
+            }
+            state.lastSync = d.updatedAt;
+            render();
+            console.log('✅ Синхронизировано с сервера');
           }
         }
-      } catch (e) { console.warn('Firebase load error:', e); }
+      } catch (e) { 
+        console.warn('Firebase load error:', e); 
+      } finally {
+        if (syncIndicator) {
+          setTimeout(() => syncIndicator.classList.remove('syncing'), 500);
+        }
+      }
     }
 
     const STORAGE_KEY = 'clicker_save';
@@ -627,6 +674,7 @@
 
       if (db) {
         loadingEl.style.display = 'block';
+        loadingEl.textContent = '⏳ Загружаем рейтинг...';
         listEl.innerHTML = '';
         listEl.appendChild(loadingEl);
         try {
@@ -646,23 +694,43 @@
             });
           });
           loadingEl.style.display = 'none';
-          document.getElementById('rankingSubtitle').textContent = 'Реальные игроки из Telegram';
-          listEl.innerHTML = players.length ? players.map((p, i) => `
-            <div class="rank-item ${p.isPlayer ? 'player' : ''}">
-              <div class="rank-position">${i + 1}</div>
-              <div class="rank-info">
-                <div class="name">${p.name}${p.username ? ' <span style="color:var(--text-muted)">@' + p.username + '</span>' : ''}</div>
-                <div class="power">${p.perClick ? 'Сила: ' + formatNumber(p.perClick) : ''}</div>
+          document.getElementById('rankingSubtitle').textContent = `Топ-${players.length} игроков`;
+          
+          if (players.length > 0) {
+            listEl.innerHTML = players.map((p, i) => `
+              <div class="rank-item ${p.isPlayer ? 'player' : ''}">
+                <div class="rank-position">${i + 1}</div>
+                <div class="rank-info">
+                  <div class="name">${p.name}${p.username ? ' <span style="color:var(--text-muted)">@' + p.username + '</span>' : ''}</div>
+                  <div class="power">${p.perClick ? '⚡ ' + formatNumber(p.perClick) : ''}</div>
+                </div>
+                <div class="rank-score">${formatNumber(p.score)}</div>
               </div>
-              <div class="rank-score">${formatNumber(p.score)}</div>
-            </div>
-          `).join('') : '<div class="ranking-loading">Пока никого нет. Будь первым!</div>';
+            `).join('');
+          } else {
+            listEl.innerHTML = '<div class="ranking-loading">🎮 Пока никого нет. Будь первым!</div>';
+          }
         } catch (e) {
-          loadingEl.textContent = 'Ошибка загрузки. Проверь настройку Firebase.';
+          console.error('Firebase ranking error:', e);
           loadingEl.style.display = 'block';
+          
+          if (e.code === 'permission-denied') {
+            loadingEl.innerHTML = `
+              <div style="text-align:center;padding:2rem;">
+                <div style="font-size:3rem;margin-bottom:1rem;">🔒</div>
+                <div style="font-size:1rem;margin-bottom:1rem;">Нужно настроить правила доступа в Firebase</div>
+                <div style="font-size:0.85rem;color:var(--text-muted);">
+                  Открой Firebase Console → Firestore Database → Rules<br>
+                  Или посмотри инструкцию в README_FIREBASE.md
+                </div>
+              </div>
+            `;
+          } else {
+            loadingEl.textContent = '❌ Ошибка загрузки: ' + e.message;
+          }
         }
       } else {
-        document.getElementById('rankingSubtitle').textContent = 'Только ты (Firebase не настроен)';
+        document.getElementById('rankingSubtitle').textContent = 'Firebase не подключен';
         loadingEl.style.display = 'none';
         const me = {
           name: getDisplayName(),
@@ -676,12 +744,15 @@
             <div class="rank-position">1</div>
             <div class="rank-info">
               <div class="name">${me.name}${me.username ? ' <span style="color:var(--text-muted)">@' + me.username + '</span>' : ''}</div>
-              <div class="power">Сила: ${formatNumber(me.perClick)}</div>
+              <div class="power">⚡ ${formatNumber(me.perClick)}</div>
             </div>
             <div class="rank-score">${formatNumber(me.score)}</div>
           </div>
-          <div class="ranking-loading" style="margin-top:1rem;font-size:0.85rem;">
-            🔧 Чтобы видеть других игроков: настрой Firebase в config.js
+          <div class="ranking-loading" style="margin-top:1.5rem;font-size:0.85rem;">
+            🔧 Firebase не подключен<br>
+            <span style="font-size:0.75rem;color:var(--text-muted);margin-top:0.5rem;display:block;">
+              ${firebaseError || 'Проверь config.js и README_FIREBASE.md'}
+            </span>
           </div>
         `;
       }
@@ -719,9 +790,21 @@
     });
 
     document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'hidden') saveState();
+      if (document.visibilityState === 'hidden') {
+        saveState();
+      } else if (document.visibilityState === 'visible') {
+        // Загружаем свежие данные когда возвращаемся
+        if (db && tgUser) loadFromFirebase();
+      }
     });
     window.addEventListener('pagehide', () => saveState());
+
+    // Автосинхронизация каждые 5 секунд
+    if (db && tgUser) {
+      setInterval(() => {
+        loadFromFirebase();
+      }, 5000);
+    }
 
     (async () => {
       if (db && tgUser) await loadFromFirebase();
