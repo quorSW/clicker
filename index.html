@@ -79,8 +79,8 @@
       border: 1px solid var(--border);
     }
     .nav-tab {
-      padding: 0.5rem 0.9rem;
-      font-size: 0.75rem;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.7rem;
       font-weight: 600;
       color: var(--text-muted);
       background: transparent;
@@ -89,6 +89,7 @@
       cursor: pointer;
       transition: all 0.2s;
       font-family: inherit;
+      white-space: nowrap;
     }
     .nav-tab:hover { color: var(--text); }
     .nav-tab.active { background: var(--accent-soft); color: var(--accent); }
@@ -257,6 +258,23 @@
     .rank-info .power { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem; }
     .rank-score { font-family: 'Unbounded', sans-serif; font-weight: 700; color: var(--accent); font-size: 1.1rem; }
     .tg-badge { font-size: 0.7rem; background: #0088cc; color: white; padding: 0.2rem 0.5rem; border-radius: 6px; margin-left: 0.5rem; }
+    
+    /* Адаптация для маленьких экранов */
+    @media (max-width: 380px) {
+      .nav-tab {
+        padding: 0.5rem 0.6rem;
+        font-size: 0.65rem;
+      }
+      .logo {
+        font-size: 1.2rem;
+      }
+      .rank-info .name {
+        font-size: 0.85rem;
+      }
+      .rank-score {
+        font-size: 0.95rem;
+      }
+    }
   </style>
 </head>
 <body>
