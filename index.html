@@ -4,1287 +4,746 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>💰 Cosmic Clicker</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script src="config.js"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    * { -webkit-tap-highlight-color: transparent; }
-    :root {
-      --bg: #0a0a12;
-      --surface: #13131d;
-      --surface-hover: #1a1a28;
-      --accent: #ffd700;
-      --accent-soft: rgba(255, 215, 0, 0.15);
-      --accent-glow: rgba(255, 215, 0, 0.5);
-      --success: #00ff88;
-      --text: #ffffff;
-      --text-muted: #5a5a6e;
-      --border: rgba(255,215,0,0.15);
-      --gradient-1: linear-gradient(135deg, #ffd700 0%, #ffb800 50%, #ff9500 100%);
-    }
-    body {
-      font-family: 'Rajdhani', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      overflow-x: hidden;
-      padding-bottom: env(safe-area-inset-bottom, 0);
-    }
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background: radial-gradient(ellipse 80% 50% at 50% -20%, var(--accent-soft), transparent);
-      pointer-events: none;
-      z-index: 0;
-    }
-    .app {
-      position: relative;
-      z-index: 1;
-      max-width: 480px;
-      margin: 0 auto;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      padding: 1rem;
-      padding-bottom: calc(100px + env(safe-area-inset-bottom));
-    }
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1.5rem 0 1rem 0;
-      margin-bottom: 1rem;
-      position: relative;
-    }
-    .logo {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 2rem;
-      font-weight: 900;
-      background: var(--gradient-1);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .sync-indicator {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: #10b981;
-      box-shadow: 0 0 10px #10b981;
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-    .sync-indicator.syncing {
-      opacity: 1;
-      animation: pulse 1s infinite;
-    }
-    .nav-tabs {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      z-index: 100;
-      display: flex;
-      gap: 0;
-      background: rgba(19, 19, 29, 0.95);
-      backdrop-filter: blur(20px);
-      padding: 0.5rem 0.5rem calc(0.5rem + env(safe-area-inset-bottom));
-      border-top: 2px solid var(--border);
-      box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.7);
-      justify-content: space-around;
-    }
-    .nav-tab {
-      flex: 1;
-      padding: 0.75rem 0.25rem;
-      font-size: 0.7rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      background: transparent;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      font-family: 'Orbitron', sans-serif;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.35rem;
-      min-height: 64px;
-      position: relative;
-    }
-    .nav-tab-icon {
-      font-size: 1.6rem;
-      display: block;
-      transition: transform 0.3s;
-    }
-    .nav-tab-label {
-      font-size: 0.65rem;
-      display: block;
-      line-height: 1.2;
-    }
-      font-weight: 700;
-      color: var(--text-muted);
-      background: transparent;
-      border: none;
-      border-radius: 16px;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      font-family: 'Orbitron', sans-serif;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .nav-tab:hover { 
-      color: var(--text); 
-      background: rgba(255, 215, 0, 0.1);
-    }
-    .nav-tab:active {
-      transform: scale(0.95);
-    }
-    .nav-tab.active { 
-      background: rgba(255, 215, 0, 0.15);
-      color: var(--accent);
-    }
-    .nav-tab.active .nav-tab-icon {
-      transform: scale(1.1);
-      filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.6));
-    }
-    .panel { display: none; flex: 1; animation: fadeIn 0.3s ease; }
-    .panel.active { display: flex; flex-direction: column; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    .game-panel { padding: 0.5rem 0; }
-    .score-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-    .score-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      background: var(--gradient-1);
-    }
-    .score-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.25rem; }
-    .score-display { font-family: 'Orbitron', sans-serif; font-size: 3rem; font-weight: 900; color: var(--accent); text-shadow: 0 0 40px var(--accent-glow); }
-    .per-click { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
-    .per-click span { color: var(--success); font-weight: 600; }
-    .click-zone { display: flex; justify-content: center; margin: 2rem 0; padding: 1rem; }
-    .click-target {
-      width: 200px;
-      height: 200px;
-      min-width: 200px;
-      min-height: 200px;
-      border-radius: 50%;
-      background: linear-gradient(145deg, var(--surface) 0%, #1e1e2a 100%);
-      border: 4px solid var(--accent);
-      box-shadow: 0 0 40px var(--accent-soft);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: transform 0.1s ease;
-      user-select: none;
-      touch-action: manipulation;
-      position: relative;
-      -webkit-user-select: none;
-    }
-    .click-target:hover { transform: scale(1.03); }
-    .click-target:active { transform: scale(0.97); }
-    .click-target span { font-size: 4rem; filter: drop-shadow(0 4px 20px rgba(245,158,11,0.3)); }
-    .upgrades-title { font-size: 0.9rem; font-weight: 600; color: var(--text-muted); margin-bottom: 1rem; padding-left: 0.25rem; }
-    .upgrades { display: grid; gap: 0.5rem; }
-    .upgrade {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1rem 1.25rem;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      transition: all 0.2s ease;
-    }
-    .upgrade:hover:not(.locked) { background: var(--surface-hover); border-color: rgba(245, 158, 11, 0.3); }
-    .upgrade.locked { opacity: 0.5; cursor: not-allowed; }
-    .upgrade.unlocked { cursor: pointer; }
-    .upgrade-info h3 { font-size: 0.95rem; font-weight: 600; }
-    .upgrade-info p { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem; }
-    .upgrade-cost { font-weight: 700; color: var(--accent); font-size: 1rem; }
-    .stats-grid { display: grid; gap: 1rem; margin-top: 1rem; }
-    .stat-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.25rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-    .stat-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      background: var(--accent-soft);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-    }
-    .stat-info h3 { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
-    .stat-info p { font-family: 'Orbitron', sans-serif; font-size: 1.6rem; font-weight: 800; color: var(--accent); margin-top: 0.25rem; }
-    .profile-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 2rem;
-      margin-bottom: 1.5rem;
-    }
-    .profile-avatar {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      background: var(--gradient-1);
-      margin: 0 auto 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2.5rem;
-    }
-    .profile-section {
-      margin-bottom: 1rem;
-      padding: 1rem;
-      background: var(--bg);
-      border-radius: 12px;
-      border: 1px solid var(--border);
-    }
-    .profile-section-title { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
-    .profile-section-value { font-size: 1rem; font-weight: 600; }
-    .profile-section-value.muted { font-weight: 400; color: var(--text-muted); }
-    .profile-level {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin: 1rem 0;
-      padding: 0.5rem 1rem;
-      background: var(--accent-soft);
-      border-radius: 20px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--accent);
-    }
-    .profile-stats { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
-    .ranking-header { text-align: center; margin-bottom: 1.5rem; }
-    .ranking-header h2 { font-family: 'Unbounded', sans-serif; font-size: 1.2rem; margin-bottom: 0.25rem; }
-    .ranking-header p { font-size: 0.85rem; color: var(--text-muted); }
-    .ranking-loading { text-align: center; padding: 2rem; color: var(--text-muted); }
-    .ranking-list { display: flex; flex-direction: column; gap: 0.5rem; }
-    .rank-item {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding: 1rem 1.25rem;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-    }
-    .rank-item.player { border-color: var(--accent); box-shadow: 0 0 20px var(--accent-soft); }
-    .rank-position {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      background: var(--bg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Unbounded', sans-serif;
-      font-weight: 700;
-      font-size: 1rem;
-      flex-shrink: 0;
-    }
-    .rank-item:nth-child(1) .rank-position { background: linear-gradient(135deg, #ffd700, #ffb347); color: #1a1a1a; }
-    .rank-item:nth-child(2) .rank-position { background: linear-gradient(135deg, #c0c0c0, #e8e8e8); color: #1a1a1a; }
-    .rank-item:nth-child(3) .rank-position { background: linear-gradient(135deg, #cd7f32, #e6a35c); color: #1a1a1a; }
-    .rank-info { flex: 1; }
-    .rank-info .name { font-weight: 600; font-size: 0.95rem; }
-    .rank-info .power { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem; }
-    .rank-score { font-family: 'Unbounded', sans-serif; font-weight: 700; color: var(--accent); font-size: 1.1rem; }
-    .tg-badge { font-size: 0.7rem; background: #0088cc; color: white; padding: 0.2rem 0.5rem; border-radius: 6px; margin-left: 0.5rem; }
-    
-    /* РАЗДЕЛ ДРУЗЕЙ */
-    .friends-header {
-      text-align: center;
-      margin-bottom: 2rem;
-      padding: 1.5rem;
-      background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 184, 0, 0.05));
-      border-radius: 20px;
-      border: 2px solid rgba(255, 215, 0, 0.2);
-    }
-    .friends-header h2 {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 1.8rem;
-      margin-bottom: 0.5rem;
-      background: var(--gradient-1);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .friends-subtitle {
-      font-size: 0.9rem;
-      color: var(--text-muted);
-    }
-    .referral-reward-card {
-      display: flex;
-      gap: 1.5rem;
-      align-items: center;
-      padding: 1.5rem;
-      background: var(--surface);
-      border: 2px solid var(--border);
-      border-radius: 20px;
-      margin-bottom: 1.5rem;
-    }
-    .reward-icon {
-      font-size: 4rem;
-      animation: float 3s ease-in-out infinite;
-    }
-    .reward-info h3 {
-      font-size: 1rem;
-      margin-bottom: 0.5rem;
-      color: var(--text);
-    }
-    .reward-amount {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 1.8rem;
-      font-weight: 900;
-      background: var(--gradient-1);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 0.3rem;
-    }
-    .reward-desc {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-    .referral-stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-    .stat-item {
-      padding: 1.5rem;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      text-align: center;
-    }
-    .stat-item .stat-value {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 2rem;
-      font-weight: 900;
-      background: var(--gradient-1);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 0.3rem;
-    }
-    .stat-item .stat-label {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .invite-button {
-      width: 100%;
-      padding: 1.25rem;
-      background: var(--gradient-1);
-      border: none;
-      border-radius: 16px;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 1rem;
-      font-weight: 900;
-      color: #000;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.75rem;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
-      transition: all 0.3s;
-    }
-    .invite-button:active {
-      transform: scale(0.97);
-    }
-    .invite-icon {
-      font-size: 1.5rem;
-    }
-    .referral-link-card {
-      padding: 1.5rem;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      margin-bottom: 1.5rem;
-    }
-    .link-label {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-bottom: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .link-box {
-      display: flex;
-      gap: 0.75rem;
-      align-items: center;
-      padding: 1rem;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-    }
-    .link-box #linkText {
-      flex: 1;
-      font-size: 0.85rem;
-      color: var(--text);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      font-family: monospace;
-    }
-    .copy-btn {
-      padding: 0.5rem 1rem;
-      background: var(--accent-soft);
-      border: 1px solid var(--accent);
-      border-radius: 8px;
-      font-size: 1.2rem;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    .copy-btn:active {
-      transform: scale(0.9);
-    }
-    .friends-list-header {
-      margin: 2rem 0 1rem 0;
-    }
-    .friends-list-header h3 {
-      font-size: 1rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .friends-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-    .friend-item {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding: 1rem 1.25rem;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-    }
-    .friend-avatar {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: var(--gradient-1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-    }
-    .friend-info {
-      flex: 1;
-    }
-    .friend-name {
-      font-size: 0.95rem;
-      font-weight: 600;
-      margin-bottom: 0.2rem;
-    }
-    .friend-reward {
-      font-size: 0.75rem;
-      color: var(--success);
-      font-weight: 600;
-    }
-    .friend-score {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 0.9rem;
-      color: var(--accent);
-      font-weight: 700;
-    }
-    .empty-friends {
-      text-align: center;
-      padding: 3rem 1.5rem;
-      color: var(--text-muted);
-    }
-    .empty-icon {
-      font-size: 4rem;
-      margin-bottom: 1rem;
-      opacity: 0.5;
-    }
-    .empty-text {
-      font-size: 1.1rem;
-      margin-bottom: 0.5rem;
-    }
-    .empty-hint {
-      font-size: 0.85rem;
-      opacity: 0.7;
-    }
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+:root {
+  --bg: #0a0a12; --surface: #13131d; --accent: #ffd700; --text: #ffffff;
+  --muted: #5a5a6e; --success: #00ff88; --border: rgba(255,215,0,0.15);
+}
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.85; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+body {
+  font-family: 'Rajdhani', sans-serif; background: var(--bg); color: var(--text);
+  min-height: 100vh; overflow-x: hidden;
+}
+body::before {
+  content: ''; position: fixed; inset: 0;
+  background: radial-gradient(circle at 20% 30%, rgba(255,215,0,0.15), transparent 40%);
+  pointer-events: none; z-index: 0;
+}
+.app {
+  position: relative; z-index: 1; max-width: 500px; margin: 0 auto; min-height: 100vh;
+  padding: 1rem; padding-bottom: calc(100px + env(safe-area-inset-bottom));
+}
+.header { text-align: center; padding: 1.5rem 0; margin-bottom: 1rem; animation: slideUp 0.6s; }
+.logo {
+  font-family: 'Orbitron', sans-serif; font-size: 2rem; font-weight: 900;
+  background: linear-gradient(135deg, #ffd700, #ffb800); -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent; animation: pulse 3s infinite;
+}
+.score-card {
+  background: rgba(19,19,29,0.7); backdrop-filter: blur(20px); border: 2px solid var(--border);
+  border-radius: 20px; padding: 2rem; margin-bottom: 2rem; text-align: center;
+  animation: slideUp 0.6s 0.2s both;
+}
+.score-label { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; margin-bottom: 0.5rem; }
+.score-display {
+  font-family: 'Orbitron', sans-serif; font-size: 3rem; font-weight: 900;
+  background: linear-gradient(135deg, #ffd700, #ffb800); -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent; margin: 0.5rem 0;
+}
+.per-click { font-size: 0.9rem; color: var(--muted); margin-top: 1rem; }
+.per-click span { color: var(--success); font-weight: 700; font-family: 'Orbitron', sans-serif; }
+.click-zone { display: flex; justify-content: center; margin: 2rem 0; padding: 1rem; animation: slideUp 0.6s 0.3s both; }
+.click-target {
+  width: 200px; height: 200px; border-radius: 50%;
+  background: linear-gradient(145deg, #1a1a28, #13131d); border: 3px solid var(--accent);
+  display: flex; align-items: center; justify-content: center; font-size: 5rem; cursor: pointer;
+  transition: transform 0.2s; user-select: none; animation: float 3s infinite;
+}
+.click-target:active { transform: scale(0.95); }
+.upgrades-title {
+  font-family: 'Orbitron', sans-serif; font-size: 1rem; font-weight: 700; color: var(--accent);
+  margin: 2rem 0 1rem 0; text-transform: uppercase; animation: slideUp 0.6s 0.4s both;
+}
+.upgrades { display: grid; gap: 0.75rem; animation: slideUp 0.6s 0.5s both; }
+.upgrade {
+  display: flex; justify-content: space-between; align-items: center; padding: 1.25rem;
+  background: rgba(19,19,29,0.7); border: 1px solid var(--border); border-radius: 16px; transition: all 0.3s;
+}
+.upgrade:hover:not(.locked) {
+  background: rgba(26,26,40,0.85); border-color: rgba(255,215,0,0.5); transform: translateX(4px);
+}
+.upgrade.locked { opacity: 0.4; cursor: not-allowed; }
+.upgrade.unlocked { cursor: pointer; }
+.upgrade-info h3 { font-size: 1rem; margin-bottom: 0.3rem; }
+.upgrade-info p { font-size: 0.8rem; color: var(--muted); }
+.upgrade-cost { font-family: 'Orbitron', sans-serif; font-weight: 700; color: var(--accent); font-size: 1.1rem; }
+.panel { display: none; }
+.panel.active { display: block; }
+.nav-tabs {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; display: flex;
+  background: rgba(19,19,29,0.95); backdrop-filter: blur(20px);
+  padding: 0.5rem 0.5rem calc(0.5rem + env(safe-area-inset-bottom));
+  border-top: 2px solid var(--border); box-shadow: 0 -8px 30px rgba(0,0,0,0.7);
+}
+.nav-tab {
+  flex: 1; padding: 0.75rem 0.25rem; background: transparent; border: none; color: var(--muted);
+  cursor: pointer; transition: all 0.3s; display: flex; flex-direction: column; align-items: center;
+  gap: 0.35rem; font-family: 'Orbitron', sans-serif; text-transform: uppercase;
+  font-size: 0.65rem; font-weight: 700;
+}
+.nav-icon { font-size: 1.6rem; }
+.nav-tab:hover { color: var(--text); background: rgba(255,215,0,0.1); }
+.nav-tab.active { color: var(--accent); background: rgba(255,215,0,0.15); }
+.nav-tab.active .nav-icon { transform: scale(1.1); filter: drop-shadow(0 0 8px rgba(255,215,0,0.6)); }
+.stats-grid { display: grid; gap: 1rem; margin-top: 1rem; }
+.stat-card {
+  background: rgba(19,19,29,0.7); border: 1px solid var(--border); border-radius: 16px;
+  padding: 1.5rem; display: flex; align-items: center; gap: 1.2rem; transition: all 0.3s;
+}
+.stat-card:hover { transform: translateY(-4px); border-color: rgba(255,215,0,0.3); }
+.stat-icon { font-size: 2rem; }
+.stat-info h3 {
+  font-size: 0.8rem; color: var(--muted); margin-bottom: 0.3rem; text-transform: uppercase;
+}
+.stat-info p {
+  font-family: 'Orbitron', sans-serif; font-size: 1.5rem; font-weight: 700;
+  background: linear-gradient(135deg, #ffd700, #ffb800); -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.ranking-header {
+  text-align: center; margin-bottom: 2rem; padding: 2rem; background: rgba(19,19,29,0.7);
+  border: 2px solid var(--border); border-radius: 20px;
+}
+.ranking-header h2 {
+  font-family: 'Orbitron', sans-serif; font-size: 2rem; margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, #ffd700, #ffb800); -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.ranking-list { display: flex; flex-direction: column; gap: 0.75rem; }
+.rank-item {
+  display: flex; align-items: center; gap: 1rem; padding: 1.25rem;
+  background: rgba(19,19,29,0.7); border: 1px solid var(--border);
+  border-radius: 16px; transition: all 0.3s;
+}
+.rank-item:hover { transform: translateX(6px); border-color: rgba(255,215,0,0.4); }
+.rank-item.player { border: 2px solid var(--accent); box-shadow: 0 0 30px rgba(255,215,0,0.3); }
+.rank-position {
+  font-family: 'Orbitron', sans-serif; font-size: 1.3rem; font-weight: 900;
+  background: linear-gradient(135deg, #ffd700, #ffb800); -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent; min-width: 50px; text-align: center;
+}
+.rank-info { flex: 1; }
+.rank-name { font-weight: 600; margin-bottom: 0.2rem; }
+.rank-power { font-size: 0.8rem; color: var(--muted); }
+.rank-score {
+  font-family: 'Orbitron', sans-serif; font-weight: 700; color: var(--accent); font-size: 1.2rem;
+}
+.ranking-loading { text-align: center; padding: 2rem; color: var(--muted); }
   </style>
 </head>
 <body>
   <div class="app">
     <header class="header">
       <div class="logo">💰 COSMIC CLICKER</div>
-      <div class="sync-indicator" id="syncIndicator"></div>
     </header>
 
-    <main class="content">
-      <section class="panel active game-panel" id="panel-game">
-        <div class="score-card">
-          <div class="score-label">Монеты</div>
-          <p class="score-display" id="score">0</p>
-          <p class="per-click">+<span id="perClick">1</span> за клик</p>
-        </div>
-        <div class="click-zone">
-          <div class="click-target" id="clickTarget"><span>👆</span></div>
-        </div>
-        <h3 class="upgrades-title">Магазин улучшений</h3>
-        <div class="upgrades" id="upgrades"></div>
-      </section>
+    <div class="panel active" id="panel-game">
+      <div class="score-card">
+        <div class="score-label">Твой баланс</div>
+        <div class="score-display" id="score">0</div>
+        <div class="per-click">За тап: <span id="perClick">1</span> 🪙</div>
+      </div>
+      <div class="click-zone">
+        <div class="click-target" id="clickTarget">🪙</div>
+      </div>
+      <h3 class="upgrades-title">⚡ Магазин улучшений</h3>
+      <div class="upgrades" id="upgrades"></div>
+      <h3 class="upgrades-title">⛏️ Крипто майнинг (оффлайн)</h3>
+      <div class="score-card" style="margin-top:1rem;">
+        <div class="score-label">Майнинг в час</div>
+        <div class="score-display" style="font-size:1.5rem;" id="passiveIncome">0</div>
+        <div class="per-click">⏱️ Работает до 3 часов оффлайн</div>
+      </div>
+      <div class="upgrades" id="passiveUpgrades"></div>
+    </div>
 
-      <section class="panel" id="panel-stats">
-        <h2 style="font-family: 'Unbounded'; font-size: 1.2rem; margin-bottom: 1rem;">📊 Статистика</h2>
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon">🖱️</div>
-            <div class="stat-info">
-              <h3>Всего кликов</h3>
-              <p id="stat-clicks">0</p>
-            </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon">💰</div>
-            <div class="stat-info">
-              <h3>Заработано всего</h3>
-              <p id="stat-earned">0</p>
-            </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon">🛒</div>
-            <div class="stat-info">
-              <h3>Покупок в магазине</h3>
-              <p id="stat-purchases">0</p>
-            </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon">⏱️</div>
-            <div class="stat-info">
-              <h3>Время в игре</h3>
-              <p id="stat-time">0м</p>
-            </div>
-          </div>
+    <div class="panel" id="panel-friends">
+      <div class="score-card">
+        <div class="score-label">🎁 Награда за друга</div>
+        <div class="score-display" style="font-size:1.8rem;">+5,000 🪙</div>
+        <div class="per-click">+ 10% от заработка</div>
+      </div>
+      <div class="stats-grid" style="grid-template-columns: 1fr 1fr;">
+        <div class="stat-card">
+          <div><div class="stat-icon">👥</div></div>
+          <div class="stat-info"><h3>Приглашено</h3><p id="friendsCount">0</p></div>
         </div>
-      </section>
+        <div class="stat-card">
+          <div><div class="stat-icon">💰</div></div>
+          <div class="stat-info"><h3>Заработано</h3><p id="friendsReward">0</p></div>
+        </div>
+      </div>
+      <button id="inviteBtn" style="width:100%;padding:1.25rem;background:linear-gradient(135deg,#ffd700,#ffb800);border:none;border-radius:16px;font-family:Orbitron;font-size:1rem;font-weight:900;color:#000;margin:1.5rem 0;cursor:pointer;">
+        📤 Пригласить друга
+      </button>
+      <div style="padding:1rem;background:rgba(19,19,29,0.7);border-radius:16px;margin-bottom:1rem;">
+        <div style="font-size:0.8rem;color:var(--muted);margin-bottom:0.5rem;">Твоя ссылка:</div>
+        <div style="display:flex;gap:0.5rem;">
+          <input id="refLink" readonly style="flex:1;padding:0.75rem;background:var(--bg);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:0.8rem;font-family:monospace;" value="Загрузка...">
+          <button id="copyBtn" style="padding:0.75rem 1rem;background:rgba(255,215,0,0.2);border:1px solid var(--accent);border-radius:12px;cursor:pointer;font-size:1.2rem;">📋</button>
+        </div>
+      </div>
+      <h3 class="upgrades-title">Твои друзья</h3>
+      <div id="friendsList" class="ranking-list"></div>
+    </div>
 
-      <section class="panel" id="panel-profile">
-        <div class="profile-card">
-          <div class="profile-avatar">👤</div>
-          <div class="profile-section">
-            <div class="profile-section-title">Имя</div>
-            <div class="profile-section-value" id="profileName">—</div>
-          </div>
-          <div class="profile-section">
-            <div class="profile-section-title">Username</div>
-            <div class="profile-section-value" id="profileUsername">—</div>
-          </div>
-          <div class="profile-section">
-            <div class="profile-section-title">ID в Telegram</div>
-            <div class="profile-section-value" id="profileId">—</div>
-          </div>
-          <div class="profile-level">⭐ Уровень <span id="profileLevel">1</span></div>
-          <div class="profile-stats">
-            <div class="stat-card">
-              <div class="stat-icon">💪</div>
-              <div class="stat-info">
-                <h3>Сила клика</h3>
-                <p id="profilePower">1</p>
-              </div>
-            </div>
-          </div>
+    <div class="panel" id="panel-stats">
+      <h3 class="upgrades-title">📊 Статистика</h3>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">👆</div>
+          <div class="stat-info"><h3>Кликов</h3><p id="statClicks">0</p></div>
         </div>
-      </section>
+        <div class="stat-card">
+          <div class="stat-icon">💰</div>
+          <div class="stat-info"><h3>Заработано</h3><p id="statEarned">0</p></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🛍️</div>
+          <div class="stat-info"><h3>Покупок</h3><p id="statPurchases">0</p></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">⏱️</div>
+          <div class="stat-info"><h3>Время</h3><p id="statTime">0с</p></div>
+        </div>
+      </div>
+    </div>
 
-      <section class="panel" id="panel-friends">
-        <div class="friends-header">
-          <h2>👥 Пригласи друзей</h2>
-          <p class="friends-subtitle">Получай награды за каждого друга!</p>
-        </div>
-        
-        <div class="referral-reward-card">
-          <div class="reward-icon">🎁</div>
-          <div class="reward-info">
-            <h3>Награда за друга</h3>
-            <div class="reward-amount">+5,000 🪙</div>
-            <p class="reward-desc">+ 10% от заработка друга</p>
-          </div>
-        </div>
+    <div class="panel" id="panel-ranking">
+      <div class="ranking-header">
+        <h2>🏆 ТОП ИГРОКОВ</h2>
+        <p id="rankingSubtitle">Реальные игроки</p>
+      </div>
+      <div class="ranking-list" id="rankingList">
+        <div class="ranking-loading">⏳ Загрузка...</div>
+      </div>
+    </div>
 
-        <div class="referral-stats">
-          <div class="stat-item">
-            <div class="stat-value" id="friendsCount">0</div>
-            <div class="stat-label">Приглашено</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-value" id="friendsReward">0</div>
-            <div class="stat-label">Заработано</div>
-          </div>
-        </div>
-
-        <button class="invite-button" id="inviteButton">
-          <span class="invite-icon">📤</span>
-          <span class="invite-text">Пригласить друга</span>
-        </button>
-
-        <div class="referral-link-card">
-          <div class="link-label">Твоя реферальная ссылка:</div>
-          <div class="link-box" id="referralLink">
-            <span id="linkText">Загрузка...</span>
-            <button class="copy-btn" id="copyLinkBtn">📋</button>
-          </div>
-        </div>
-
-        <div class="friends-list-header">
-          <h3>Твои друзья</h3>
-        </div>
-        <div class="friends-list" id="friendsList">
-          <div class="empty-friends">
-            <div class="empty-icon">👥</div>
-            <div class="empty-text">Пока никого нет</div>
-            <div class="empty-hint">Пригласи друзей и получай награды!</div>
-          </div>
-        </div>
-      </section>
-
-      <section class="panel" id="panel-ranking">
-        <div class="ranking-header">
-          <h2>🏆 Рейтинг игроков</h2>
-          <p id="rankingSubtitle">Реальные игроки из Telegram</p>
-        </div>
-        <div class="ranking-list" id="rankingList">
-          <div class="ranking-loading" id="rankingLoading">Загрузка рейтинга...</div>
-        </div>
-      </section>
-    </main>
-    
-    <!-- Мобильная навигация внизу -->
     <nav class="nav-tabs">
       <button class="nav-tab active" data-tab="game">
-        <span class="nav-tab-icon">🎮</span>
-        <span class="nav-tab-label">Игра</span>
+        <div class="nav-icon">🎮</div><div>Игра</div>
       </button>
       <button class="nav-tab" data-tab="friends">
-        <span class="nav-tab-icon">👥</span>
-        <span class="nav-tab-label">Друзья</span>
+        <div class="nav-icon">👥</div><div>Друзья</div>
       </button>
       <button class="nav-tab" data-tab="stats">
-        <span class="nav-tab-icon">📊</span>
-        <span class="nav-tab-label">Статы</span>
+        <div class="nav-icon">📊</div><div>Статы</div>
       </button>
       <button class="nav-tab" data-tab="ranking">
-        <span class="nav-tab-icon">🏆</span>
-        <span class="nav-tab-label">Топ</span>
+        <div class="nav-icon">🏆</div><div>Топ</div>
       </button>
     </nav>
   </div>
 
   <script>
-    const TgWebApp = window.Telegram?.WebApp;
-    const isTelegram = TgWebApp?.initDataUnsafe?.user;
-    const tgUser = isTelegram ? TgWebApp.initDataUnsafe.user : null;
+const TgWebApp=window.Telegram?.WebApp;
+const isTelegram=!!TgWebApp?.initDataUnsafe?.user;
+const tgUser=isTelegram?TgWebApp.initDataUnsafe.user:null;
+if(TgWebApp)TgWebApp.ready();
 
-    if (isTelegram) {
-      TgWebApp.ready();
-      TgWebApp.expand();
-      TgWebApp.enableClosingConfirmation();
-      document.documentElement.style.setProperty('--bg', TgWebApp.themeParams?.bg_color || '#0a0a0f');
-    }
+let db=null;
+if(typeof firebase!=='undefined'&&typeof FIREBASE_ENABLED!=='undefined'&&FIREBASE_ENABLED&&typeof FIREBASE_CONFIG!=='undefined'){
+  try{
+    firebase.initializeApp(FIREBASE_CONFIG);
+    db=firebase.firestore();
+    console.log('✅ Firebase подключен');
+  }catch(e){
+    console.warn('⚠️ Firebase error:',e);
+  }
+}
 
-    let db = null;
-    let firebaseError = null;
-    if (typeof FIREBASE_ENABLED !== 'undefined' && FIREBASE_ENABLED && typeof firebase !== 'undefined') {
-      try {
-        firebase.initializeApp(FIREBASE_CONFIG);
-        db = firebase.firestore();
-        console.log('✅ Firebase подключен успешно');
-      } catch (e) { 
-        console.warn('❌ Firebase init error:', e);
-        firebaseError = e.message;
-      }
-    } else {
-      console.warn('⚠️ Firebase не настроен. Проверь config.js');
-      firebaseError = 'Firebase не настроен в config.js';
-    }
+const state={
+  score:BigInt(0),totalClicks:0,totalEarned:BigInt(0),totalSpent:BigInt(0),
+  purchasesCount:0,startTime:Date.now(),lastOnline:Date.now(),
+  referrals:[],referralRewards:0,
+  upgrades:[
+    {id:'bot',name:'🤖 Трейдинг бот',desc:'+1 за тап',cost:10,value:1,count:0},
+    {id:'exchange',name:'💱 Криптобиржа',desc:'+5 за тап',cost:100,value:5,count:0},
+    {id:'blockchain',name:'⛓️ Блокчейн узел',desc:'+25 за тап',cost:500,value:25,count:0},
+    {id:'nft',name:'🎨 NFT маркетплейс',desc:'+100 за тап',cost:2500,value:100,count:0},
+    {id:'defi',name:'🏦 DeFi протокол',desc:'+500 за тап',cost:10000,value:500,count:0},
+    {id:'metaverse',name:'🌐 Метавселенная',desc:'+2500 за тап',cost:50000,value:2500,count:0},
+  ],
+  passiveUpgrades:[
+    {id:'btc',name:'₿ Bitcoin майнер',desc:'+10/час',cost:500,value:10,count:0},
+    {id:'eth',name:'Ξ Ethereum ферма',desc:'+50/час',cost:2500,value:50,count:0},
+    {id:'asic',name:'⚙️ ASIC ферма',desc:'+250/час',cost:10000,value:250,count:0},
+    {id:'pool',name:'🏊 Майнинг пул',desc:'+1000/час',cost:50000,value:1000,count:0},
+    {id:'datacenter',name:'🏢 Дата-центр',desc:'+5000/час',cost:250000,value:5000,count:0},
+  ]
+};
 
-    const state = {
-      score: BigInt(0),
-      totalClicks: 0,
-      totalEarned: BigInt(0),
-      totalSpent: BigInt(0),
-      purchasesCount: 0,
-      startTime: Date.now(),
-      lastSync: 0,
-      referrals: [],
-      referralRewards: 0,
-      upgrades: [
-        { id: 'bot', name: '🤖 Торговый бот', desc: '+1 за тап', cost: 10, value: 1, count: 0, emoji: '🤖' },
-        { id: 'mining', name: '⛏️ Майнинг ферма', desc: '+5 за тап', cost: 100, value: 5, count: 0, emoji: '⛏️' },
-        { id: 'exchange', name: '💱 Криптобиржа', desc: '+25 за тап', cost: 500, value: 25, count: 0, emoji: '💱' },
-        { id: 'blockchain', name: '⛓️ Блокчейн сеть', desc: '+100 за тап', cost: 2500, value: 100, count: 0, emoji: '⛓️' },
-        { id: 'nft', name: '🎨 NFT студия', desc: '+500 за тап', cost: 10000, value: 500, count: 0, emoji: '🎨' },
-        { id: 'defi', name: '🏦 DeFi платформа', desc: '+2500 за тап', cost: 50000, value: 2500, count: 0, emoji: '🏦' },
-        { id: 'metaverse', name: '🌐 Метавселенная', desc: '+10000 за тап', cost: 200000, value: 10000, count: 0, emoji: '🌐' },
-        { id: 'ai', name: '🧠 AI суперкомпьютер', desc: '+50000 за тап', cost: 1000000, value: 50000, count: 0, emoji: '🧠' },
-      ]
-    };
+function formatNumber(n){
+  const num=typeof n==='bigint'?Number(n):n;
+  if(num>=1e9)return(num/1e9).toFixed(1)+'B';
+  if(num>=1e6)return(num/1e6).toFixed(1)+'M';
+  if(num>=1e3)return(num/1e3).toFixed(1)+'K';
+  return Math.floor(num).toString();
+}
 
-    function getUserId() {
-      if (tgUser) return String(tgUser.id);
-      return 'local_' + (localStorage.getItem('clicker_device_id') || (localStorage.setItem('clicker_device_id', 'dev_' + Date.now()), localStorage.getItem('clicker_device_id')));
-    }
+function formatTime(ms){
+  const s=Math.floor(ms/1000);
+  const m=Math.floor(s/60);
+  const h=Math.floor(m/60);
+  if(h>0)return h+'ч '+(m%60)+'м';
+  if(m>0)return m+'м';
+  return s+'с';
+}
 
-    function getDisplayName() {
-      if (tgUser) {
-        const parts = [tgUser.first_name];
-        if (tgUser.last_name) parts.push(tgUser.last_name);
-        return parts.join(' ');
-      }
-      return 'Гость';
-    }
+function getUserId(){
+  if(tgUser)return String(tgUser.id);
+  let id=localStorage.getItem('local_id');
+  if(!id){
+    id='local_'+Date.now();
+    localStorage.setItem('local_id',id);
+  }
+  return id;
+}
 
-    function getUsername() {
-      if (tgUser?.username) return '@' + tgUser.username;
-      return '—';
-    }
+function getDisplayName(){
+  if(tgUser)return tgUser.first_name+(tgUser.last_name?' '+tgUser.last_name:'');
+  return 'Гость';
+}
 
-    function getPerClick() {
-      return 1 + state.upgrades.reduce((sum, u) => sum + u.value * u.count, 0);
+function getPerClick(){
+  return 1+state.upgrades.reduce((sum,u)=>sum+u.value*u.count,0);
+}
+
+function getPassiveIncome(){
+  return state.passiveUpgrades.reduce((sum,u)=>sum+u.value*u.count,0);
+}
+
+function calculateOfflineEarnings(){
+  const now=Date.now();
+  const hours=Math.min((now-state.lastOnline)/(1000*60*60),3);
+  const earned=Math.floor(getPassiveIncome()*hours);
+  state.lastOnline=now;
+  return BigInt(earned);
+}
+
+function getReferralLink(){
+  return `https://t.me/cosmiccliker_bot?start=ref_${getUserId()}`;
+}
+
+function checkReferral(){
+  const startParam=TgWebApp?.initDataUnsafe?.start_param;
+  console.log('🔍 Start param:',startParam);
+  if(startParam&&startParam.startsWith('ref_')){
+    const refId=startParam.replace('ref_','');
+    console.log('✅ Реферер:',refId);
+    return refId;
+  }
+  return null;
+}
+
+async function processReferral(){
+  const referrerId=checkReferral();
+  console.log('🎯 Обработка реферала...');
+  console.log('   Реферер ID:',referrerId);
+  console.log('   DB доступен:',!!db);
+  console.log('   Telegram user:',tgUser?tgUser.id:'нет');
+  
+  if(!referrerId){
+    console.log('⚠️ Нет реферальной ссылки');
+    return;
+  }
+  
+  if(!db){
+    console.log('⚠️ Firebase не подключен');
+    return;
+  }
+  
+  if(!tgUser){
+    console.log('⚠️ Нет Telegram пользователя');
+    return;
+  }
+  
+  const myId=getUserId();
+  console.log('   Мой ID:',myId);
+  
+  if(referrerId===myId){
+    console.log('⚠️ Нельзя пригласить самого себя');
+    return;
+  }
+  
+  try{
+    console.log('📥 Проверяю был ли уже приглашен...');
+    const myDoc=await db.collection('players').doc(myId).get();
+    if(myDoc.exists&&myDoc.data().referredBy){
+      console.log('⚠️ Уже был приглашен ранее:',myDoc.data().referredBy);
+      return;
     }
     
-    function getReferralLink() {
-      const botUsername = 'cosmicclicker_bot'; // Замени на username бота
-      const userId = getUserId();
-      return `https://t.me/${botUsername}?start=ref_${userId}`;
+    console.log('📥 Загружаю данные реферера...');
+    const refDoc=await db.collection('players').doc(referrerId).get();
+    if(!refDoc.exists){
+      console.log('⚠️ Реферер не найден в базе');
+      // Создаем запись для реферера если его нет
+      await db.collection('players').doc(referrerId).set({
+        referrals:[{
+          id:myId,
+          name:getDisplayName(),
+          joinedAt:Date.now()
+        }],
+        referralRewards:5000,
+        score:5000,
+        updatedAt:Date.now()
+      },{merge:true});
+      console.log('✅ Создана новая запись для реферера с наградой!');
+    }else{
+      const refData=refDoc.data();
+      console.log('📊 Данные реферера:',{
+        name:refData.name,
+        currentScore:refData.score,
+        currentReferrals:(refData.referrals||[]).length
+      });
+      
+      const newReferrals=[...(refData.referrals||[]),{
+        id:myId,
+        name:getDisplayName(),
+        joinedAt:Date.now()
+      }];
+      
+      const newScore=Number(refData.score||0)+5000;
+      const newRewards=(refData.referralRewards||0)+5000;
+      
+      console.log('💾 Обновляю реферера...');
+      console.log('   Новый счёт:',newScore);
+      console.log('   Всего рефералов:',newReferrals.length);
+      
+      await db.collection('players').doc(referrerId).update({
+        referrals:newReferrals,
+        referralRewards:newRewards,
+        score:newScore,
+        updatedAt:Date.now()
+      });
+      
+      console.log('✅ Реферер обновлен!');
     }
     
-    function checkReferral() {
-      if (!TgWebApp?.initDataUnsafe?.start_param) return null;
-      const startParam = TgWebApp.initDataUnsafe.start_param;
-      if (startParam.startsWith('ref_')) {
-        return startParam.replace('ref_', '');
-      }
-      return null;
-    }
+    console.log('💾 Сохраняю кто меня пригласил...');
+    await db.collection('players').doc(myId).set({
+      referredBy:referrerId,
+      name:getDisplayName(),
+      username:tgUser?.username||'',
+      joinedAt:Date.now(),
+      updatedAt:Date.now()
+    },{merge:true});
     
-    async function processReferral() {
-      const referrerId = checkReferral();
-      if (!referrerId || !db || !tgUser) return;
-      
-      const myId = getUserId();
-      if (referrerId === myId) return; // Нельзя пригласить самого себя
-      
-      try {
-        // Проверяем что еще не начислили награду
-        const myDoc = await db.collection('players').doc(myId).get();
-        if (myDoc.exists && myDoc.data().referredBy) return; // Уже был приглашен
-        
-        // Начисляем награду рефереру
-        const refDoc = await db.collection('players').doc(referrerId).get();
-        if (refDoc.exists) {
-          const refData = refDoc.data();
-          const newReferrals = [...(refData.referrals || []), {
-            id: myId,
-            name: getDisplayName(),
-            joinedAt: Date.now()
-          }];
-          
-          await db.collection('players').doc(referrerId).update({
-            referrals: newReferrals,
-            referralRewards: (refData.referralRewards || 0) + 5000,
-            score: Number(refData.score || 0) + 5000
-          });
-          
-          // Сохраняем что мы были приглашены
-          await db.collection('players').doc(myId).set({
-            referredBy: referrerId
-          }, { merge: true });
-          
-          console.log('✅ Реферальная награда начислена!');
-        }
-      } catch (e) {
-        console.error('Ошибка обработки реферала:', e);
-      }
-    }
+    console.log('🎉 РЕФЕРАЛЬНАЯ НАГРАДА НАЧИСЛЕНА!');
+    console.log(`💰 Реферер ${referrerId} получил +5,000 монет`);
     
-    function renderFriends() {
-      if (!isTelegram) {
-        document.getElementById('friendsCount').textContent = '0';
-        document.getElementById('friendsReward').textContent = '0';
-        document.getElementById('linkText').textContent = 'Доступно только в Telegram';
-        document.getElementById('inviteButton').disabled = true;
-        return;
-      }
-      
-      const referralLink = getReferralLink();
-      document.getElementById('linkText').textContent = referralLink;
-      document.getElementById('friendsCount').textContent = state.referrals.length;
-      document.getElementById('friendsReward').textContent = formatNumber(state.referralRewards);
-      
-      const friendsList = document.getElementById('friendsList');
-      if (state.referrals.length === 0) {
-        friendsList.innerHTML = `
-          <div class="empty-friends">
-            <div class="empty-icon">👥</div>
-            <div class="empty-text">Пока никого нет</div>
-            <div class="empty-hint">Пригласи друзей и получай награды!</div>
-          </div>
-        `;
-      } else {
-        friendsList.innerHTML = state.referrals.map(friend => `
-          <div class="friend-item">
-            <div class="friend-avatar">👤</div>
-            <div class="friend-info">
-              <div class="friend-name">${friend.name}</div>
-              <div class="friend-reward">+5,000 🪙 получено</div>
-            </div>
-          </div>
-        `).join('');
-      }
-    }
-
-    function getLevel() {
-      const power = getPerClick();
-      const total = state.totalClicks + Number(state.totalEarned);
-      return Math.max(1, Math.floor(Math.log10(total + 1) * 2) + Math.floor(power / 10));
-    }
-
-    const scoreEl = document.getElementById('score');
-    const perClickEl = document.getElementById('perClick');
-    const clickTarget = document.getElementById('clickTarget');
-    const upgradesContainer = document.getElementById('upgrades');
-
-    function formatNumber(val) {
-      const n = typeof val === 'bigint' ? Number(val) : val;
-      if (n >= 1e15) return (n / 1e15).toFixed(1) + 'Q';
-      if (n >= 1e12) return (n / 1e12).toFixed(1) + 'T';
-      if (n >= 1e9) return (n / 1e9).toFixed(1) + 'B';
-      if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
-      if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
-      return Math.floor(n).toString();
-    }
-
-    function formatTime(ms) {
-      const sec = Math.floor(ms / 1000);
-      const min = Math.floor(sec / 60);
-      const hours = Math.floor(min / 60);
-      if (hours > 0) return hours + 'ч ' + (min % 60) + 'м';
-      if (min > 0) return min + 'м';
-      return sec + 'с';
-    }
-
-    function getPlayerData() {
-      return {
-        userId: getUserId(),
-        name: getDisplayName(),
-        username: tgUser?.username || '',
-        score: state.score.toString(),
-        perClick: getPerClick(),
-        totalClicks: state.totalClicks,
-        totalEarned: state.totalEarned.toString(),
-        totalSpent: state.totalSpent.toString(),
-        purchasesCount: state.purchasesCount,
-        startTime: state.startTime,
-        referrals: state.referrals,
-        referralRewards: state.referralRewards,
-        upgrades: state.upgrades.map(u => ({ ...u })),
-        updatedAt: Date.now(),
-      };
-    }
-
-    async function saveToFirebase() {
-      if (!db) return;
-      try {
-        const data = getPlayerData();
-        state.lastSync = data.updatedAt;
-        await db.collection('players').doc(getUserId()).set(data, { merge: true });
-      } catch (e) { console.warn('Firebase save error:', e); }
-    }
-
-    async function loadFromFirebase() {
-      if (!db || !tgUser) return;
-      
-      const syncIndicator = document.getElementById('syncIndicator');
-      if (syncIndicator) syncIndicator.classList.add('syncing');
-      
-      try {
-        const doc = await db.collection('players').doc(getUserId()).get();
-        if (doc.exists) {
-          const d = doc.data();
-          const remoteScore = BigInt(d.score || 0);
-          
-          // Используем данные с сервера если они новее
-          if (d.updatedAt > (state.lastSync || 0) && remoteScore > state.score) {
-            state.score = remoteScore;
-            state.totalClicks = d.totalClicks || 0;
-            state.totalEarned = BigInt(d.totalEarned || 0);
-            state.totalSpent = BigInt(d.totalSpent || 0);
-            state.purchasesCount = d.purchasesCount || 0;
-            state.startTime = d.startTime || Date.now();
-            state.referrals = d.referrals || [];
-            state.referralRewards = d.referralRewards || 0;
-            if (d.upgrades) {
-              d.upgrades.forEach((u, i) => {
-                if (state.upgrades[i]) state.upgrades[i].count = u.count || 0;
-              });
-            }
-            state.lastSync = d.updatedAt;
-            render();
-            console.log('✅ Синхронизировано с сервера');
-          } else {
-            // Загружаем только referrals даже если счет не обновился
-            state.referrals = d.referrals || [];
-            state.referralRewards = d.referralRewards || 0;
-          }
-        }
-      } catch (e) { 
-        console.warn('Firebase load error:', e); 
-      } finally {
-        if (syncIndicator) {
-          setTimeout(() => syncIndicator.classList.remove('syncing'), 500);
-        }
-      }
-    }
-
-    const STORAGE_KEY = 'clicker_save';
-
-    function getSaveData() {
-      return JSON.stringify({
-        score: state.score.toString(),
-        totalClicks: state.totalClicks,
-        totalEarned: state.totalEarned.toString(),
-        totalSpent: state.totalSpent.toString(),
-        purchasesCount: state.purchasesCount,
-        startTime: state.startTime,
-        upgrades: state.upgrades.map(u => ({ ...u })),
+    if(TgWebApp?.showPopup){
+      TgWebApp.showPopup({
+        title:'🎉 Добро пожаловать!',
+        message:'Ты зарегистрировался по реферальной ссылке!\n\nТвой друг получил +5,000 🪙',
+        buttons:[{type:'ok'}]
       });
     }
+  }catch(e){
+    console.error('❌ Ошибка обработки реферала:',e);
+    console.error('   Детали:',e.message);
+  }
+}
 
-    function saveState() {
-      const data = getSaveData();
-      const key = STORAGE_KEY + '_' + getUserId();
-      localStorage.setItem(key, data);
-      if (db) saveToFirebase();
-      if (isTelegram && TgWebApp?.CloudStorage) {
-        const cs = TgWebApp.CloudStorage;
-        if (cs.setItem) cs.setItem(key, data);
-        else if (cs.set) cs.set(key, data);
+async function saveToFirebase(){
+  if(!db)return;
+  try{
+    await db.collection('players').doc(getUserId()).set({
+      name:getDisplayName(),
+      username:tgUser?.username||'',
+      score:Number(state.score),
+      perClick:getPerClick(),
+      passiveIncome:getPassiveIncome(),
+      totalClicks:state.totalClicks,
+      referrals:state.referrals,
+      referralRewards:state.referralRewards,
+      lastOnline:state.lastOnline,
+      upgrades:state.upgrades.map(u=>({count:u.count})),
+      passiveUpgrades:state.passiveUpgrades.map(u=>({count:u.count})),
+      updatedAt:Date.now()
+    },{merge:true});
+  }catch(e){
+    console.error('Save error:',e);
+  }
+}
+
+async function loadFromFirebase(){
+  if(!db||!tgUser)return;
+  try{
+    const doc=await db.collection('players').doc(getUserId()).get();
+    if(doc.exists){
+      const d=doc.data();
+      state.score=BigInt(d.score||0);
+      state.totalClicks=d.totalClicks||0;
+      state.lastOnline=d.lastOnline||Date.now();
+      state.referrals=d.referrals||[];
+      state.referralRewards=d.referralRewards||0;
+      if(d.upgrades){
+        d.upgrades.forEach((u,i)=>{
+          if(state.upgrades[i])state.upgrades[i].count=u.count||0;
+        });
+      }
+      if(d.passiveUpgrades){
+        d.passiveUpgrades.forEach((u,i)=>{
+          if(state.passiveUpgrades[i])state.passiveUpgrades[i].count=u.count||0;
+        });
       }
     }
+  }catch(e){
+    console.error('Load error:',e);
+  }
+}
 
-    function loadState(callback) {
-      const key = STORAGE_KEY + '_' + getUserId();
-      function applyData(data) {
-        if (!data) return;
-        try {
-          const d = typeof data === 'string' ? JSON.parse(data) : data;
-          state.score = BigInt(d.score || 0);
-          state.totalClicks = d.totalClicks || 0;
-          state.totalEarned = BigInt(d.totalEarned || 0);
-          state.totalSpent = BigInt(d.totalSpent || 0);
-          state.purchasesCount = d.purchasesCount || 0;
-          state.startTime = d.startTime || Date.now();
-          if (d.upgrades) {
-            d.upgrades.forEach((u, i) => {
-              if (state.upgrades[i]) state.upgrades[i].count = u.count || 0;
-            });
-          }
-        } catch (e) {}
-        if (callback) callback();
-      }
-      if (isTelegram && TgWebApp?.CloudStorage) {
-        const cs = TgWebApp.CloudStorage;
-        const onCloud = (val) => {
-          if (val && val !== '') applyData(val);
-          else tryLocal();
-          if (callback) callback();
-        };
-        if (cs.getItems) {
-          cs.getItems([key], (obj) => { onCloud(obj && obj[key]); });
-        } else if (cs.getItem) {
-          cs.getItem(key, onCloud);
-        } else if (cs.get) {
-          const p = cs.get(key);
-          if (p && p.then) p.then(onCloud).catch(() => { tryLocal(); if (callback) callback(); });
-          else tryLocal();
-        } else tryLocal();
-      } else tryLocal();
+function render(){
+  const perClick=getPerClick();
+  const passiveIncome=getPassiveIncome();
+  
+  document.getElementById('score').textContent=formatNumber(state.score);
+  document.getElementById('perClick').textContent=formatNumber(perClick);
+  document.getElementById('passiveIncome').textContent=formatNumber(passiveIncome)+' 🪙';
+  
+  document.getElementById('upgrades').innerHTML=state.upgrades.map((u,i)=>{
+    const cost=Math.floor(u.cost*Math.pow(1.15,u.count));
+    const locked=state.score<BigInt(cost);
+    return `
+      <div class="upgrade ${locked?'locked':'unlocked'}" data-index="${i}">
+        <div class="upgrade-info">
+          <h3>${u.name}</h3>
+          <p>${u.desc}${u.count>0?' · x'+u.count:''}</p>
+        </div>
+        <div class="upgrade-cost">${formatNumber(cost)} 🪙</div>
+      </div>
+    `;
+  }).join('');
+  
+  document.querySelectorAll('#upgrades .upgrade.unlocked').forEach(el=>{
+    el.addEventListener('click',()=>buyUpgrade(parseInt(el.dataset.index)));
+  });
+  
+  document.getElementById('passiveUpgrades').innerHTML=state.passiveUpgrades.map((u,i)=>{
+    const cost=Math.floor(u.cost*Math.pow(1.15,u.count));
+    const locked=state.score<BigInt(cost);
+    return `
+      <div class="upgrade ${locked?'locked':'unlocked'}" data-index="${i}" data-type="passive">
+        <div class="upgrade-info">
+          <h3>${u.name}</h3>
+          <p>${u.desc}${u.count>0?' · x'+u.count:''}</p>
+        </div>
+        <div class="upgrade-cost">${formatNumber(cost)} 🪙</div>
+      </div>
+    `;
+  }).join('');
+  
+  document.querySelectorAll('#passiveUpgrades .upgrade.unlocked').forEach(el=>{
+    el.addEventListener('click',()=>buyPassiveUpgrade(parseInt(el.dataset.index)));
+  });
+  
+  document.getElementById('statClicks').textContent=formatNumber(state.totalClicks);
+  document.getElementById('statEarned').textContent=formatNumber(state.totalEarned+state.totalSpent);
+  document.getElementById('statPurchases').textContent=state.purchasesCount;
+  document.getElementById('statTime').textContent=formatTime(Date.now()-state.startTime);
+  
+  document.getElementById('friendsCount').textContent=state.referrals.length;
+  document.getElementById('friendsReward').textContent=formatNumber(state.referralRewards);
+  
+  const friendsList=document.getElementById('friendsList');
+  if(state.referrals.length===0){
+    friendsList.innerHTML='<div class="ranking-loading">Пока никого нет 👥</div>';
+  }else{
+    friendsList.innerHTML=state.referrals.map(f=>`
+      <div class="rank-item">
+        <div class="rank-position">👤</div>
+        <div class="rank-info">
+          <div class="rank-name">${f.name}</div>
+          <div class="rank-power">+5,000 🪙</div>
+        </div>
+      </div>
+    `).join('');
+  }
+  
+  saveToFirebase();
+}
 
-      function tryLocal() {
-        try {
-          const data = localStorage.getItem(key);
-          if (data) applyData(data);
-        } catch (e) {}
-        if (callback) callback();
-      }
-    }
-
-    function render() {
-      const perClick = getPerClick();
-      scoreEl.textContent = formatNumber(state.score);
-      perClickEl.textContent = formatNumber(perClick);
-
-      upgradesContainer.innerHTML = state.upgrades.map((u, i) => {
-        const nextCost = Math.floor(u.cost * Math.pow(1.15, u.count));
-        const locked = state.score < BigInt(nextCost);
-        return `
-          <div class="upgrade ${locked ? 'locked' : 'unlocked'}" data-index="${i}">
-            <div class="upgrade-info">
-              <h3>${u.name}</h3>
-              <p>${u.desc}${u.count > 0 ? ` · Куплено: ${u.count}` : ''}</p>
-            </div>
-            <div>
-              <span class="upgrade-cost">${formatNumber(nextCost)}</span>
-              <span style="color:var(--text-muted);font-size:0.8rem;">🪙</span>
-            </div>
-          </div>
-        `;
-      }).join('');
-
-      document.querySelectorAll('.upgrade.unlocked').forEach(el => {
-        el.addEventListener('click', () => buyUpgrade(parseInt(el.dataset.index)));
-      });
-
-      renderStats();
-      renderProfile();
-      renderRanking();
-      saveState();
-    }
-
-    function renderStats() {
-      const elapsed = Date.now() - state.startTime;
-      document.getElementById('stat-clicks').textContent = formatNumber(state.totalClicks);
-      document.getElementById('stat-earned').textContent = formatNumber(state.totalEarned + state.totalSpent);
-      document.getElementById('stat-purchases').textContent = state.purchasesCount;
-      document.getElementById('stat-time').textContent = formatTime(elapsed);
-    }
-
-    function renderProfile() {
-      document.getElementById('profileName').textContent = getDisplayName();
-      document.getElementById('profileName').className = 'profile-section-value' + (isTelegram ? '' : ' muted');
-      if (isTelegram) {
-        document.getElementById('profileName').innerHTML = getDisplayName() + ' <span class="tg-badge">Telegram</span>';
-      }
-      document.getElementById('profileUsername').textContent = getUsername();
-      document.getElementById('profileUsername').className = 'profile-section-value' + (tgUser?.username ? '' : ' muted');
-      document.getElementById('profileId').textContent = tgUser ? tgUser.id : (getUserId().startsWith('local_') ? getUserId() : '—');
-      document.getElementById('profileLevel').textContent = getLevel();
-      document.getElementById('profilePower').textContent = formatNumber(getPerClick());
-    }
-
-    async function renderRanking() {
-      const listEl = document.getElementById('rankingList');
-      const loadingEl = document.getElementById('rankingLoading');
-
-      if (db) {
-        loadingEl.style.display = 'block';
-        loadingEl.textContent = '⏳ Загружаем рейтинг...';
-        listEl.innerHTML = '';
-        listEl.appendChild(loadingEl);
-        try {
-          const snapshot = await db.collection('players')
-            .orderBy('score', 'desc')
-            .limit(50)
-            .get();
-          const players = [];
-          snapshot.forEach(doc => {
-            const d = doc.data();
-            players.push({
-              name: d.name || 'Игрок',
-              username: d.username,
-              score: Number(d.score || 0),
-              perClick: d.perClick || 0,
-              isPlayer: doc.id === getUserId(),
-            });
-          });
-          loadingEl.style.display = 'none';
-          document.getElementById('rankingSubtitle').textContent = `Топ-${players.length} игроков`;
-          
-          if (players.length > 0) {
-            listEl.innerHTML = players.map((p, i) => `
-              <div class="rank-item ${p.isPlayer ? 'player' : ''}">
-                <div class="rank-position">${i + 1}</div>
-                <div class="rank-info">
-                  <div class="name">${p.name}${p.username ? ' <span style="color:var(--text-muted)">@' + p.username + '</span>' : ''}</div>
-                  <div class="power">${p.perClick ? '⚡ ' + formatNumber(p.perClick) : ''}</div>
-                </div>
-                <div class="rank-score">${formatNumber(p.score)}</div>
-              </div>
-            `).join('');
-          } else {
-            listEl.innerHTML = '<div class="ranking-loading">🎮 Пока никого нет. Будь первым!</div>';
-          }
-        } catch (e) {
-          console.error('Firebase ranking error:', e);
-          loadingEl.style.display = 'block';
-          
-          if (e.code === 'permission-denied') {
-            loadingEl.innerHTML = `
-              <div style="text-align:center;padding:2rem;">
-                <div style="font-size:3rem;margin-bottom:1rem;">🔒</div>
-                <div style="font-size:1rem;margin-bottom:1rem;">Нужно настроить правила доступа в Firebase</div>
-                <div style="font-size:0.85rem;color:var(--text-muted);">
-                  Открой Firebase Console → Firestore Database → Rules<br>
-                  Или посмотри инструкцию в README_FIREBASE.md
-                </div>
-              </div>
-            `;
-          } else {
-            loadingEl.textContent = '❌ Ошибка загрузки: ' + e.message;
-          }
-        }
-      } else {
-        document.getElementById('rankingSubtitle').textContent = 'Firebase не подключен';
-        loadingEl.style.display = 'none';
-        const me = {
-          name: getDisplayName(),
-          username: tgUser?.username || '',
-          score: Number(state.score),
-          perClick: getPerClick(),
-          isPlayer: true
-        };
-        listEl.innerHTML = `
-          <div class="rank-item player">
-            <div class="rank-position">1</div>
-            <div class="rank-info">
-              <div class="name">${me.name}${me.username ? ' <span style="color:var(--text-muted)">@' + me.username + '</span>' : ''}</div>
-              <div class="power">⚡ ${formatNumber(me.perClick)}</div>
-            </div>
-            <div class="rank-score">${formatNumber(me.score)}</div>
-          </div>
-          <div class="ranking-loading" style="margin-top:1.5rem;font-size:0.85rem;">
-            🔧 Firebase не подключен<br>
-            <span style="font-size:0.75rem;color:var(--text-muted);margin-top:0.5rem;display:block;">
-              ${firebaseError || 'Проверь config.js и README_FIREBASE.md'}
-            </span>
-          </div>
-        `;
-      }
-    }
-
-    function buyUpgrade(index) {
-      const u = state.upgrades[index];
-      const cost = Math.floor(u.cost * Math.pow(1.15, u.count));
-      const costBig = BigInt(cost);
-      if (state.score >= costBig) {
-        state.score -= costBig;
-        state.totalSpent += costBig;
-        state.purchasesCount++;
-        u.count++;
-        render();
-      }
-    }
-
-    document.querySelectorAll('.nav-tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-        tab.classList.add('active');
-        document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
-        if (tab.dataset.tab === 'ranking') renderRanking();
-        if (tab.dataset.tab === 'friends') renderFriends();
+async function renderRanking(){
+  const list=document.getElementById('rankingList');
+  console.log('🏆 Загружаю рейтинг...');
+  
+  if(!db){
+    console.log('⚠️ Firebase не настроен');
+    list.innerHTML='<div class="ranking-loading">⚠️ Firebase не настроен</div>';
+    return;
+  }
+  
+  list.innerHTML='<div class="ranking-loading">⏳ Загрузка рейтинга...</div>';
+  
+  try{
+    console.log('📥 Запрос к Firebase...');
+    const snapshot=await db.collection('players').orderBy('score','desc').limit(50).get();
+    console.log('📊 Получено документов:',snapshot.size);
+    
+    const players=[];
+    snapshot.forEach(doc=>{
+      const d=doc.data();
+      console.log('   Игрок:',doc.id,d.name,d.score);
+      players.push({
+        id:doc.id,
+        name:d.name||'Игрок',
+        username:d.username,
+        score:d.score||0,
+        perClick:d.perClick||0,
+        isMe:doc.id===getUserId()
       });
     });
     
-    // Кнопка приглашения
-    document.getElementById('inviteButton')?.addEventListener('click', () => {
-      if (!isTelegram) return;
-      const referralLink = getReferralLink();
-      const message = `🎮 Присоединяйся к Cosmic Clicker!\n\n💰 Тапай и зарабатывай монеты\n🚀 Прокачивай бизнес\n🏆 Соревнуйся с друзьями\n\n🎁 Бонус при регистрации по ссылке!`;
-      
-      TgWebApp.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent(message)}`);
-    });
+    console.log('✅ Обработано игроков:',players.length);
     
-    // Кнопка копирования ссылки
-    document.getElementById('copyLinkBtn')?.addEventListener('click', async () => {
-      const linkText = document.getElementById('linkText').textContent;
-      try {
-        await navigator.clipboard.writeText(linkText);
-        const btn = document.getElementById('copyLinkBtn');
-        btn.textContent = '✅';
-        setTimeout(() => btn.textContent = '📋', 2000);
-      } catch (e) {
-        // Fallback для старых браузеров
-        const input = document.createElement('input');
-        input.value = linkText;
-        document.body.appendChild(input);
-        input.select();
-        document.execCommand('copy');
-        document.body.removeChild(input);
-        
-        const btn = document.getElementById('copyLinkBtn');
-        btn.textContent = '✅';
-        setTimeout(() => btn.textContent = '📋', 2000);
-      }
-    });
-
-    clickTarget.addEventListener('click', () => {
-      const gain = BigInt(getPerClick());
-      state.score += gain;
-      state.totalEarned += gain;
-      state.totalClicks++;
-      render();
-    });
-
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'hidden') {
-        saveState();
-      } else if (document.visibilityState === 'visible') {
-        // Загружаем свежие данные когда возвращаемся
-        if (db && tgUser) loadFromFirebase();
-      }
-    });
-    window.addEventListener('pagehide', () => saveState());
-
-    // Автосинхронизация каждые 5 секунд
-    if (db && tgUser) {
-      setInterval(() => {
-        loadFromFirebase();
-      }, 5000);
+    if(players.length===0){
+      console.log('⚠️ Нет игроков в рейтинге');
+      list.innerHTML='<div class="ranking-loading">🎮 Будь первым в рейтинге!</div>';
+    }else{
+      document.getElementById('rankingSubtitle').textContent=`Топ-${players.length} игроков`;
+      list.innerHTML=players.map((p,i)=>`
+        <div class="rank-item ${p.isMe?'player':''}">
+          <div class="rank-position">${i+1}${i===0?'🥇':i===1?'🥈':i===2?'🥉':''}</div>
+          <div class="rank-info">
+            <div class="rank-name">${p.name}${p.username?' @'+p.username:''}</div>
+            <div class="rank-power">⚡ ${formatNumber(p.perClick)}/тап</div>
+          </div>
+          <div class="rank-score">${formatNumber(p.score)}</div>
+        </div>
+      `).join('');
+      console.log('✅ Рейтинг отображен!');
     }
+  }catch(e){
+    console.error('❌ Ошибка загрузки рейтинга:',e);
+    console.error('   Детали:',e.message);
+    
+    if(e.code==='permission-denied'){
+      list.innerHTML=`
+        <div class="ranking-loading">
+          🔒 Нет доступа к Firestore<br>
+          <small style="font-size:0.8rem;margin-top:0.5rem;display:block;">
+            Настрой правила в Firebase Console:<br>
+            Firestore → Rules → allow read: if true;
+          </small>
+        </div>
+      `;
+    }else{
+      list.innerHTML='<div class="ranking-loading">❌ Ошибка: '+e.message+'</div>';
+    }
+  }
+}
 
-    (async () => {
-      if (db && tgUser) {
-        await processReferral(); // Обработка реферальной ссылки
-        await loadFromFirebase();
-      }
-      await new Promise(resolve => loadState(resolve));
-      render();
-    })();
+function buyUpgrade(index){
+  const u=state.upgrades[index];
+  const cost=BigInt(Math.floor(u.cost*Math.pow(1.15,u.count)));
+  if(state.score>=cost){
+    state.score-=cost;
+    state.totalSpent+=cost;
+    state.purchasesCount++;
+    u.count++;
+    render();
+  }
+}
+
+function buyPassiveUpgrade(index){
+  const u=state.passiveUpgrades[index];
+  const cost=BigInt(Math.floor(u.cost*Math.pow(1.15,u.count)));
+  if(state.score>=cost){
+    state.score-=cost;
+    state.totalSpent+=cost;
+    state.purchasesCount++;
+    u.count++;
+    render();
+  }
+}
+
+document.querySelectorAll('.nav-tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-'+tab.dataset.tab).classList.add('active');
+    if(tab.dataset.tab==='ranking')renderRanking();
+  });
+});
+
+document.getElementById('clickTarget').addEventListener('click',()=>{
+  const gain=BigInt(getPerClick());
+  state.score+=gain;
+  state.totalEarned+=gain;
+  state.totalClicks++;
+  render();
+});
+
+document.getElementById('refLink').value=getReferralLink();
+
+document.getElementById('copyBtn').addEventListener('click',async()=>{
+  const link=document.getElementById('refLink').value;
+  try{
+    await navigator.clipboard.writeText(link);
+    document.getElementById('copyBtn').textContent='✅';
+    setTimeout(()=>document.getElementById('copyBtn').textContent='📋',2000);
+  }catch(e){
+    console.error('Copy error:',e);
+  }
+});
+
+document.getElementById('inviteBtn').addEventListener('click',()=>{
+  if(!isTelegram)return;
+  const link=getReferralLink();
+  const msg=`🎮 Играй в Cosmic Clicker!\n💰 Тапай и зарабатывай\n🎁 Бонус при регистрации!`;
+  TgWebApp.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(msg)}`);
+});
+
+(async()=>{
+  console.log('🚀 Запуск игры...');
+  console.log('   Telegram:',isTelegram);
+  console.log('   User:',tgUser?tgUser.id:'нет');
+  console.log('   Firebase:',!!db);
+  
+  if(db&&tgUser){
+    console.log('🔄 Обработка реферала...');
+    await processReferral();
+    
+    console.log('📥 Загрузка данных из Firebase...');
+    await loadFromFirebase();
+    
+    // Автоматически сохраняем игрока в рейтинг при первом запуске
+    console.log('💾 Регистрация в рейтинге...');
+    await saveToFirebase();
+  }
+  
+  console.log('⏰ Расчёт оффлайн заработка...');
+  const offlineEarnings=calculateOfflineEarnings();
+  if(offlineEarnings>0){
+    console.log(`💰 Оффлайн заработок: +${formatNumber(offlineEarnings)}`);
+    state.score+=offlineEarnings;
+    state.totalEarned+=offlineEarnings;
+    
+    if(TgWebApp?.showPopup){
+      const hours=Math.min((Date.now()-state.lastOnline)/(1000*60*60),3);
+      TgWebApp.showPopup({
+        title:'💤 Майнинг работал!',
+        message:`Ты был оффлайн ${hours.toFixed(1)} ч\n\nНамайнено: +${formatNumber(offlineEarnings)} 🪙`,
+        buttons:[{type:'ok'}]
+      });
+    }
+  }
+  
+  console.log('🎨 Рендер интерфейса...');
+  render();
+  console.log('✅ Игра загружена!');
+})();
   </script>
 </body>
 </html>
