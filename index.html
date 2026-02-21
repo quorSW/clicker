@@ -195,6 +195,30 @@ body::before {
       <div id="friendsList" class="ranking-list"></div>
     </div>
 
+    <div class="panel" id="panel-shop">
+      <div class="score-card">
+        <div class="score-label">🎁 Промокоды для @gamestoren_bot</div>
+        <div class="score-display" style="font-size:1.5rem;">Скидки</div>
+        <div class="per-click">Купи промокод и получи скидку!</div>
+      </div>
+      
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">🎟️</div>
+          <div class="stat-info">
+            <h3>Куплено промокодов</h3>
+            <p id="promoCount">0</p>
+          </div>
+        </div>
+      </div>
+      
+      <h3 class="upgrades-title">💳 Доступные промокоды</h3>
+      <div id="promocodesList"></div>
+      
+      <h3 class="upgrades-title" style="margin-top:2rem;">🎫 Мои промокоды</h3>
+      <div id="myPromocodes" class="ranking-list"></div>
+    </div>
+
     <div class="panel" id="panel-stats">
       <h3 class="upgrades-title">📊 Статистика</h3>
       <div class="stats-grid">
@@ -231,6 +255,9 @@ body::before {
       <button class="nav-tab active" data-tab="game">
         <div class="nav-icon">🎮</div><div>Игра</div>
       </button>
+      <button class="nav-tab" data-tab="shop">
+        <div class="nav-icon">🎁</div><div>Скидки</div>
+      </button>
       <button class="nav-tab" data-tab="friends">
         <div class="nav-icon">👥</div><div>Друзья</div>
       </button>
@@ -264,6 +291,7 @@ const state={
   score:BigInt(0),totalClicks:0,totalEarned:BigInt(0),totalSpent:BigInt(0),
   purchasesCount:0,startTime:Date.now(),lastOnline:Date.now(),
   referrals:[],referralRewards:0,
+  purchasedPromocodes:[],
   upgrades:[
     {id:'bot',name:'🤖 Трейдинг бот',desc:'+1 за тап',cost:10,value:1,count:0},
     {id:'exchange',name:'💱 Криптобиржа',desc:'+5 за тап',cost:100,value:5,count:0},
@@ -278,6 +306,10 @@ const state={
     {id:'asic',name:'⚙️ ASIC ферма',desc:'+250/час',cost:10000,value:250,count:0},
     {id:'pool',name:'🏊 Майнинг пул',desc:'+1000/час',cost:50000,value:1000,count:0},
     {id:'datacenter',name:'🏢 Дата-центр',desc:'+5000/час',cost:250000,value:5000,count:0},
+  ],
+  promocodes:[
+    {id:'promo10',name:'🎁 Скидка 10%',desc:'Промокод на 10% в @gamestoren_bot',cost:150000000,discount:10,purchased:false},
+    {id:'promo20',name:'🎁 Скидка 20%',desc:'Промокод на 20% в @gamestoren_bot',cost:300000000,discount:20,purchased:false},
   ]
 };
 
@@ -330,7 +362,7 @@ function calculateOfflineEarnings(){
 }
 
 function getReferralLink(){
-  return `https://t.me/cosmiccliker_bot?start=ref_${getUserId()}`;
+  return `https://t.me/cosmicclicker_bot?start=ref_${getUserId()}`;
 }
 
 function checkReferral(){
@@ -467,6 +499,7 @@ async function saveToFirebase(){
       referrals:state.referrals,
       referralRewards:state.referralRewards,
       lastOnline:state.lastOnline,
+      purchasedPromocodes:state.purchasedPromocodes,
       upgrades:state.upgrades.map(u=>({count:u.count})),
       passiveUpgrades:state.passiveUpgrades.map(u=>({count:u.count})),
       updatedAt:Date.now()
@@ -487,6 +520,7 @@ async function loadFromFirebase(){
       state.lastOnline=d.lastOnline||Date.now();
       state.referrals=d.referrals||[];
       state.referralRewards=d.referralRewards||0;
+      state.purchasedPromocodes=d.purchasedPromocodes||[];
       if(d.upgrades){
         d.upgrades.forEach((u,i)=>{
           if(state.upgrades[i])state.upgrades[i].count=u.count||0;
@@ -570,7 +604,110 @@ function render(){
     `).join('');
   }
   
+  // Промокоды
+  renderPromocodes();
+  
   saveToFirebase();
+}
+
+function generatePromocode(discount){
+  const prefix='COSMIC';
+  const random=Math.random().toString(36).substring(2,8).toUpperCase();
+  return `${prefix}${discount}_${random}`;
+}
+
+function renderPromocodes(){
+  const promoList=document.getElementById('promocodesList');
+  const myPromos=document.getElementById('myPromocodes');
+  const promoCount=document.getElementById('promoCount');
+  
+  if(!promoList||!myPromos||!promoCount)return;
+  
+  promoCount.textContent=state.purchasedPromocodes.length;
+  
+  promoList.innerHTML=state.promocodes.map((p,i)=>{
+    const purchased=state.purchasedPromocodes.some(pp=>pp.id===p.id);
+    const locked=state.score<BigInt(p.cost)||purchased;
+    return `
+      <div class="upgrade ${locked?'locked':'unlocked'}" data-index="${i}" data-type="promo">
+        <div class="upgrade-info">
+          <h3>${p.name}</h3>
+          <p>${p.desc}${purchased?' · ✅ Куплено':''}</p>
+        </div>
+        <div class="upgrade-cost">${formatNumber(p.cost)} 🪙</div>
+      </div>
+    `;
+  }).join('');
+  
+  document.querySelectorAll('[data-type="promo"].upgrade.unlocked').forEach(el=>{
+    el.addEventListener('click',()=>buyPromocode(parseInt(el.dataset.index)));
+  });
+  
+  if(state.purchasedPromocodes.length===0){
+    myPromos.innerHTML='<div class="ranking-loading">Пока нет промокодов 🎫</div>';
+  }else{
+    myPromos.innerHTML=state.purchasedPromocodes.map(p=>`
+      <div class="rank-item">
+        <div class="rank-position">${p.discount}%</div>
+        <div class="rank-info">
+          <div class="rank-name">${p.name}</div>
+          <div class="rank-power" style="font-family:monospace;font-size:0.9rem;">${p.code}</div>
+        </div>
+        <button onclick="copyPromo('${p.code}')" style="padding:0.5rem 1rem;background:rgba(255,215,0,0.2);border:1px solid var(--accent);border-radius:8px;cursor:pointer;font-size:0.9rem;">📋</button>
+      </div>
+    `).join('');
+  }
+}
+
+function copyPromo(code){
+  navigator.clipboard.writeText(code).then(()=>{
+    if(TgWebApp?.showPopup){
+      TgWebApp.showPopup({
+        title:'✅ Скопировано!',
+        message:`Промокод ${code} скопирован!\n\nИспользуй в @gamestoren_bot`,
+        buttons:[{type:'ok'}]
+      });
+    }
+  });
+}
+
+function buyPromocode(index){
+  const p=state.promocodes[index];
+  const cost=BigInt(p.cost);
+  
+  if(state.purchasedPromocodes.some(pp=>pp.id===p.id)){
+    console.log('⚠️ Промокод уже куплен');
+    return;
+  }
+  
+  if(state.score>=cost){
+    const code=generatePromocode(p.discount);
+    
+    state.score-=cost;
+    state.totalSpent+=cost;
+    state.purchasesCount++;
+    state.purchasedPromocodes.push({
+      id:p.id,
+      name:p.name,
+      code:code,
+      discount:p.discount,
+      purchasedAt:Date.now()
+    });
+    
+    console.log(`✅ Куплен промокод: ${code} (${p.discount}%)`);
+    
+    if(TgWebApp?.showPopup){
+      TgWebApp.showPopup({
+        title:'🎉 Промокод куплен!',
+        message:`${p.name}\nКод: ${code}\n\nИспользуй в @gamestoren_bot для скидки ${p.discount}%!`,
+        buttons:[{type:'ok'}]
+      });
+    }
+    
+    render();
+  }else{
+    console.log('⚠️ Недостаточно монет');
+  }
 }
 
 async function renderRanking(){
@@ -587,7 +724,7 @@ async function renderRanking(){
   
   try{
     console.log('📥 Запрос к Firebase...');
-    const snapshot=await db.collection('players').orderBy('score','desc').limit(50).get();
+    const snapshot=await db.collection('players').orderBy('score','desc').limit(100).get();
     console.log('📊 Получено документов:',snapshot.size);
     
     const players=[];
@@ -747,4 +884,3 @@ document.getElementById('inviteBtn').addEventListener('click',()=>{
   </script>
 </body>
 </html>
-
