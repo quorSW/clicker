@@ -626,13 +626,13 @@ function renderPromocodes(){
   promoCount.textContent=state.purchasedPromocodes.length;
   
   promoList.innerHTML=state.promocodes.map((p,i)=>{
-    const purchased=state.purchasedPromocodes.some(pp=>pp.id===p.id);
-    const locked=state.score<BigInt(p.cost)||purchased;
+    const locked=state.score<BigInt(p.cost);
+    const timesP=state.purchasedPromocodes.filter(pp=>pp.name===p.name).length;
     return `
       <div class="upgrade ${locked?'locked':'unlocked'}" data-index="${i}" data-type="promo">
         <div class="upgrade-info">
           <h3>${p.name}</h3>
-          <p>${p.desc}${purchased?' · ✅ Куплено':''}</p>
+          <p>${p.desc}${timesP>0?' · Куплено: '+timesP+'x':''}</p>
         </div>
         <div class="upgrade-cost">${formatNumber(p.cost)} 🪙</div>
       </div>
@@ -675,11 +675,6 @@ function buyPromocode(index){
   const p=state.promocodes[index];
   const cost=BigInt(p.cost);
   
-  if(state.purchasedPromocodes.some(pp=>pp.id===p.id)){
-    console.log('⚠️ Промокод уже куплен');
-    return;
-  }
-  
   if(state.score>=cost){
     const code=generatePromocode(p.discount);
     
@@ -687,7 +682,7 @@ function buyPromocode(index){
     state.totalSpent+=cost;
     state.purchasesCount++;
     state.purchasedPromocodes.push({
-      id:p.id,
+      id:p.id+'-'+Date.now(), // Уникальный ID для каждой покупки
       name:p.name,
       code:code,
       discount:p.discount,
