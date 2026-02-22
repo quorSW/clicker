@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
@@ -145,129 +146,152 @@ body::before {
       <div class="logo">💰 COSMIC CLICKER</div>
     </header>
 
-    <div class="panel active" id="panel-game">
-      <div class="score-card">
-        <div class="score-label">Твой баланс</div>
-        <div class="score-display" id="score">0</div>
-        <div class="per-click">За тап: <span id="perClick">1</span> 🪙</div>
-      </div>
-      <div class="click-zone">
-        <div class="click-target" id="clickTarget">🪙</div>
-      </div>
-      <h3 class="upgrades-title">⚡ Магазин улучшений</h3>
-      <div class="upgrades" id="upgrades"></div>
-      <h3 class="upgrades-title">⛏️ Крипто майнинг (оффлайн)</h3>
-      <div class="score-card" style="margin-top:1rem;">
-        <div class="score-label">Майнинг в час</div>
-        <div class="score-display" style="font-size:1.5rem;" id="passiveIncome">0</div>
-        <div class="per-click">⏱️ Работает до 3 часов оффлайн</div>
-      </div>
-      <div class="upgrades" id="passiveUpgrades"></div>
-    </div>
+```
+<div class="panel active" id="panel-game">
+  <div class="score-card">
+    <div class="score-label">Твой баланс</div>
+    <div class="score-display" id="score">0</div>
+    <div class="per-click">За тап: <span id="perClick">1</span> 🪙</div>
+  </div>
+  <div class="click-zone">
+    <div class="click-target" id="clickTarget">🪙</div>
+  </div>
+  <h3 class="upgrades-title">⚡ Магазин улучшений</h3>
+  <div class="upgrades" id="upgrades"></div>
+  <h3 class="upgrades-title">⛏️ Крипто майнинг (оффлайн)</h3>
+  <div class="score-card" style="margin-top:1rem;">
+    <div class="score-label">Майнинг в час</div>
+    <div class="score-display" style="font-size:1.5rem;" id="passiveIncome">0</div>
+    <div class="per-click">⏱️ Работает до 3 часов оффлайн</div>
+  </div>
+  <div class="upgrades" id="passiveUpgrades"></div>
+</div>
 
-    <div class="panel" id="panel-friends">
-      <div class="score-card">
-        <div class="score-label">🎁 Награда за друга</div>
-        <div class="score-display" style="font-size:1.8rem;">+5,000 🪙</div>
-        <div class="per-click">+ 10% от заработка</div>
-      </div>
-      <div class="stats-grid" style="grid-template-columns: 1fr 1fr;">
-        <div class="stat-card">
-          <div><div class="stat-icon">👥</div></div>
-          <div class="stat-info"><h3>Приглашено</h3><p id="friendsCount">0</p></div>
-        </div>
-        <div class="stat-card">
-          <div><div class="stat-icon">💰</div></div>
-          <div class="stat-info"><h3>Заработано</h3><p id="friendsReward">0</p></div>
-        </div>
-      </div>
-      <button id="inviteBtn" style="width:100%;padding:1.25rem;background:linear-gradient(135deg,#ffd700,#ffb800);border:none;border-radius:16px;font-family:Orbitron;font-size:1rem;font-weight:900;color:#000;margin:1.5rem 0;cursor:pointer;">
-        📤 Пригласить друга
-      </button>
-      <div style="padding:1rem;background:rgba(19,19,29,0.7);border-radius:16px;margin-bottom:1rem;">
-        <div style="font-size:0.8rem;color:var(--muted);margin-bottom:0.5rem;">Твоя ссылка:</div>
-        <div style="display:flex;gap:0.5rem;">
-          <input id="refLink" readonly style="flex:1;padding:0.75rem;background:var(--bg);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:0.8rem;font-family:monospace;" value="Загрузка...">
-          <button id="copyBtn" style="padding:0.75rem 1rem;background:rgba(255,215,0,0.2);border:1px solid var(--accent);border-radius:12px;cursor:pointer;font-size:1.2rem;">📋</button>
-        </div>
-      </div>
-      <h3 class="upgrades-title">Твои друзья</h3>
-      <div id="friendsList" class="ranking-list"></div>
+<div class="panel" id="panel-friends">
+  <div class="score-card">
+    <div class="score-label">🎁 Награда за друга</div>
+    <div class="score-display" style="font-size:1.8rem;">+5,000 🪙</div>
+    <div class="per-click">+ 10% от заработка</div>
+  </div>
+  <div class="stats-grid" style="grid-template-columns: 1fr 1fr;">
+    <div class="stat-card">
+      <div><div class="stat-icon">👥</div></div>
+      <div class="stat-info"><h3>Приглашено</h3><p id="friendsCount">0</p></div>
     </div>
-
-    <div class="panel" id="panel-shop">
-      <div class="score-card">
-        <div class="score-label">🎁 Промокоды для @gamestoren_bot</div>
-        <div class="score-display" style="font-size:1.5rem;">Скидки</div>
-        <div class="per-click">Купи промокод и получи скидку!</div>
-      </div>
-      
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon">🎟️</div>
-          <div class="stat-info">
-            <h3>Куплено промокодов</h3>
-            <p id="promoCount">0</p>
-          </div>
-        </div>
-      </div>
-      
-      <h3 class="upgrades-title">💳 Доступные промокоды</h3>
-      <div id="promocodesList"></div>
-      
-      <h3 class="upgrades-title" style="margin-top:2rem;">🎫 Мои промокоды</h3>
-      <div id="myPromocodes" class="ranking-list"></div>
+    <div class="stat-card">
+      <div><div class="stat-icon">💰</div></div>
+      <div class="stat-info"><h3>Заработано</h3><p id="friendsReward">0</p></div>
     </div>
+  </div>
+  <button id="inviteBtn" style="width:100%;padding:1.25rem;background:linear-gradient(135deg,#ffd700,#ffb800);border:none;border-radius:16px;font-family:Orbitron;font-size:1rem;font-weight:900;color:#000;margin:1.5rem 0;cursor:pointer;">
+    📤 Пригласить друга
+  </button>
+  <div style="padding:1rem;background:rgba(19,19,29,0.7);border-radius:16px;margin-bottom:1rem;">
+    <div style="font-size:0.8rem;color:var(--muted);margin-bottom:0.5rem;">Твоя ссылка:</div>
+    <div style="display:flex;gap:0.5rem;">
+      <input id="refLink" readonly style="flex:1;padding:0.75rem;background:var(--bg);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:0.8rem;font-family:monospace;" value="Загрузка...">
+      <button id="copyBtn" style="padding:0.75rem 1rem;background:rgba(255,215,0,0.2);border:1px solid var(--accent);border-radius:12px;cursor:pointer;font-size:1.2rem;">📋</button>
+    </div>
+  </div>
+  <h3 class="upgrades-title">Твои друзья</h3>
+  <div id="friendsList" class="ranking-list"></div>
+</div>
 
-    <div class="panel" id="panel-stats">
-      <h3 class="upgrades-title">📊 Статистика</h3>
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon">👆</div>
-          <div class="stat-info"><h3>Кликов</h3><p id="statClicks">0</p></div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">💰</div>
-          <div class="stat-info"><h3>Заработано</h3><p id="statEarned">0</p></div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">🛍️</div>
-          <div class="stat-info"><h3>Покупок</h3><p id="statPurchases">0</p></div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">⏱️</div>
-          <div class="stat-info"><h3>Время</h3><p id="statTime">0с</p></div>
-        </div>
+<div class="panel" id="panel-shop">
+  <div class="score-card">
+    <div class="score-label">🎮 Баллы для @gamestoren_bot</div>
+    <div class="score-display" style="font-size:2.5rem;" id="bonusDisplay">0</div>
+    <div class="per-click">1,000,000 монет = 1 балл</div>
+  </div>
+  
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">💎</div>
+      <div class="stat-info">
+        <h3>Баллы доступны</h3>
+        <p id="availableBonus">0</p>
       </div>
     </div>
-
-    <div class="panel" id="panel-ranking">
-      <div class="ranking-header">
-        <h2>🏆 ТОП ИГРОКОВ</h2>
-        <p id="rankingSubtitle">Реальные игроки</p>
-      </div>
-      <div class="ranking-list" id="rankingList">
-        <div class="ranking-loading">⏳ Загрузка...</div>
+    <div class="stat-card">
+      <div class="stat-icon">✨</div>
+      <div class="stat-info">
+        <h3>Можно купить</h3>
+        <p id="canBuyBonus">0</p>
       </div>
     </div>
+  </div>
+  
+  <div style="padding:1.5rem;background:rgba(19,19,29,0.7);border-radius:16px;margin:1.5rem 0;border:2px solid rgba(255,215,0,0.3);">
+    <h3 style="font-size:1rem;margin-bottom:1rem;color:var(--accent);">💡 Как получить баллы?</h3>
+    <ul style="list-style:none;padding:0;font-size:0.9rem;line-height:1.8;">
+      <li>✅ Накопи 1,000,000 монет = 1 балл</li>
+      <li>✅ 50 баллов ≈ 3 дня активной игры</li>
+      <li>✅ Используй баллы в @gamestoren_bot</li>
+      <li>✅ Баллы синхронизируются автоматически!</li>
+    </ul>
+  </div>
+  
+  <button id="buyBonusBtn" style="width:100%;padding:1.5rem;background:linear-gradient(135deg,#ffd700,#ffb800);border:none;border-radius:16px;font-family:Orbitron;font-size:1.1rem;font-weight:900;color:#000;margin:1rem 0;cursor:pointer;box-shadow:0 8px 25px rgba(255,215,0,0.4);">
+    💎 Купить баллы (1M = 1 балл)
+  </button>
+  
+  <div style="padding:1rem;background:rgba(19,19,29,0.7);border-radius:12px;text-align:center;">
+    <div style="font-size:0.8rem;color:var(--muted);margin-bottom:0.5rem;">Синхронизация с @gamestoren_bot</div>
+    <div style="font-size:1.2rem;font-weight:700;color:var(--success);" id="syncStatus">✅ Подключено</div>
+  </div>
+</div>
 
-    <nav class="nav-tabs">
-      <button class="nav-tab active" data-tab="game">
-        <div class="nav-icon">🎮</div><div>Игра</div>
-      </button>
-      <button class="nav-tab" data-tab="shop">
-        <div class="nav-icon">🎁</div><div>Скидки</div>
-      </button>
-      <button class="nav-tab" data-tab="friends">
-        <div class="nav-icon">👥</div><div>Друзья</div>
-      </button>
-      <button class="nav-tab" data-tab="stats">
-        <div class="nav-icon">📊</div><div>Статы</div>
-      </button>
-      <button class="nav-tab" data-tab="ranking">
-        <div class="nav-icon">🏆</div><div>Топ</div>
-      </button>
-    </nav>
+<div class="panel" id="panel-stats">
+  <h3 class="upgrades-title">📊 Статистика</h3>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">👆</div>
+      <div class="stat-info"><h3>Кликов</h3><p id="statClicks">0</p></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">💰</div>
+      <div class="stat-info"><h3>Заработано</h3><p id="statEarned">0</p></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🛍️</div>
+      <div class="stat-info"><h3>Покупок</h3><p id="statPurchases">0</p></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">⏱️</div>
+      <div class="stat-info"><h3>Время</h3><p id="statTime">0с</p></div>
+    </div>
+  </div>
+</div>
+
+<div class="panel" id="panel-ranking">
+  <div class="ranking-header">
+    <h2>🏆 ТОП ИГРОКОВ</h2>
+    <p id="rankingSubtitle">Реальные игроки</p>
+  </div>
+  <div class="ranking-list" id="rankingList">
+    <div class="ranking-loading">⏳ Загрузка...</div>
+  </div>
+</div>
+
+<nav class="nav-tabs">
+  <button class="nav-tab active" data-tab="game">
+    <div class="nav-icon">🎮</div><div>Игра</div>
+  </button>
+  <button class="nav-tab" data-tab="shop">
+    <div class="nav-icon">💎</div><div>Баллы</div>
+  </button>
+  <button class="nav-tab" data-tab="friends">
+    <div class="nav-icon">👥</div><div>Друзья</div>
+  </button>
+  <button class="nav-tab" data-tab="stats">
+    <div class="nav-icon">📊</div><div>Статы</div>
+  </button>
+  <button class="nav-tab" data-tab="ranking">
+    <div class="nav-icon">🏆</div><div>Топ</div>
+  </button>
+</nav>
+```
+
   </div>
 
   <script>
@@ -291,7 +315,8 @@ const state={
   score:BigInt(0),totalClicks:0,totalEarned:BigInt(0),totalSpent:BigInt(0),
   purchasesCount:0,startTime:Date.now(),lastOnline:Date.now(),
   referrals:[],referralRewards:0,
-  purchasedPromocodes:[],
+  bonusPoints:0,
+  spentOnBonus:BigInt(0),
   upgrades:[
     {id:'bot',name:'🤖 Трейдинг бот',desc:'+1 за тап',cost:10,value:1,count:0},
     {id:'exchange',name:'💱 Криптобиржа',desc:'+5 за тап',cost:100,value:5,count:0},
@@ -306,10 +331,6 @@ const state={
     {id:'asic',name:'⚙️ ASIC ферма',desc:'+250/час',cost:10000,value:250,count:0},
     {id:'pool',name:'🏊 Майнинг пул',desc:'+1000/час',cost:50000,value:1000,count:0},
     {id:'datacenter',name:'🏢 Дата-центр',desc:'+5000/час',cost:250000,value:5000,count:0},
-  ],
-  promocodes:[
-    {id:'promo10',name:'🎁 Скидка 10%',desc:'Промокод на 10% в @gamestoren_bot',cost:150000000,discount:10,purchased:false},
-    {id:'promo20',name:'🎁 Скидка 20%',desc:'Промокод на 20% в @gamestoren_bot',cost:300000000,discount:20,purchased:false},
   ]
 };
 
@@ -499,7 +520,8 @@ async function saveToFirebase(){
       referrals:state.referrals,
       referralRewards:state.referralRewards,
       lastOnline:state.lastOnline,
-      purchasedPromocodes:state.purchasedPromocodes,
+      bonusPoints:state.bonusPoints,
+      spentOnBonus:Number(state.spentOnBonus),
       upgrades:state.upgrades.map(u=>({count:u.count})),
       passiveUpgrades:state.passiveUpgrades.map(u=>({count:u.count})),
       updatedAt:Date.now()
@@ -520,7 +542,8 @@ async function loadFromFirebase(){
       state.lastOnline=d.lastOnline||Date.now();
       state.referrals=d.referrals||[];
       state.referralRewards=d.referralRewards||0;
-      state.purchasedPromocodes=d.purchasedPromocodes||[];
+      state.bonusPoints=d.bonusPoints||0;
+      state.spentOnBonus=BigInt(d.spentOnBonus||0);
       if(d.upgrades){
         d.upgrades.forEach((u,i)=>{
           if(state.upgrades[i])state.upgrades[i].count=u.count||0;
@@ -604,8 +627,8 @@ function render(){
     `).join('');
   }
   
-  // Промокоды
-  renderPromocodes();
+  // Баллы
+  renderBonus();
   
   saveToFirebase();
 }
@@ -837,6 +860,77 @@ document.getElementById('inviteBtn').addEventListener('click',()=>{
   TgWebApp.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(msg)}`);
 });
 
+// Кнопка покупки баллов
+document.getElementById('buyBonusBtn')?.addEventListener('click',()=>buyBonus());
+
+// Функции для баллов
+function renderBonus(){
+  const bonusDisplay=document.getElementById('bonusDisplay');
+  const availableBonus=document.getElementById('availableBonus');
+  const canBuyBonus=document.getElementById('canBuyBonus');
+  if(!bonusDisplay||!availableBonus||!canBuyBonus)return;
+  bonusDisplay.textContent=state.bonusPoints;
+  availableBonus.textContent=state.bonusPoints;
+  const canBuy=Number(state.score)/1000000;
+  canBuyBonus.textContent=Math.floor(canBuy);
+}
+
+async function buyBonus(){
+  const BONUS_COST=BigInt(1000000);
+  if(state.score>=BONUS_COST){
+    const howMany=Number(state.score/BONUS_COST);
+    const willBuy=Math.floor(howMany);
+    const totalCost=BONUS_COST*BigInt(willBuy);
+    state.score-=totalCost;
+    state.spentOnBonus+=totalCost;
+    state.bonusPoints+=willBuy;
+    console.log(`✅ Куплено баллов: ${willBuy}`);
+    await syncBonusToGamestore();
+    if(TgWebApp?.showPopup){
+      TgWebApp.showPopup({
+        title:'💎 Баллы куплены!',
+        message:`Куплено: ${willBuy} баллов\n\nБаллы синхронизированы с @gamestoren_bot!`,
+        buttons:[{type:'ok'}]
+      });
+    }
+    render();
+  }else{
+    if(TgWebApp?.showPopup){
+      TgWebApp.showPopup({
+        title:'❌ Недостаточно монет',
+        message:`Нужно: 1,000,000 🪙\nУ тебя: ${formatNumber(state.score)} 🪙`,
+        buttons:[{type:'ok'}]
+      });
+    }
+  }
+}
+
+async function syncBonusToGamestore(){
+  if(!db||!tgUser)return;
+  try{
+    console.log('🔄 Синхронизация с @gamestoren_bot...');
+    await db.collection('gamestore_users').doc(String(tgUser.id)).set({
+      telegram_id:tgUser.id,
+      username:tgUser.username||'',
+      first_name:tgUser.first_name||'',
+      bonus_points:state.bonusPoints,
+      updated_at:Date.now(),
+      source:'cosmicclicker'
+    },{merge:true});
+    console.log('✅ Баллы синхронизированы!');
+    if(document.getElementById('syncStatus')){
+      document.getElementById('syncStatus').textContent='✅ Синхронизировано';
+      document.getElementById('syncStatus').style.color='var(--success)';
+    }
+  }catch(e){
+    console.error('❌ Ошибка синхронизации:',e);
+    if(document.getElementById('syncStatus')){
+      document.getElementById('syncStatus').textContent='❌ Ошибка';
+      document.getElementById('syncStatus').style.color='#ff4444';
+    }
+  }
+}
+
 (async()=>{
   console.log('🚀 Запуск игры...');
   console.log('   Telegram:',isTelegram);
@@ -877,5 +971,6 @@ document.getElementById('inviteBtn').addEventListener('click',()=>{
   console.log('✅ Игра загружена!');
 })();
   </script>
+
 </body>
 </html>
