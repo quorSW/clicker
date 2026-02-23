@@ -212,13 +212,6 @@ body::before {
         <p id="availableBonus">0</p>
       </div>
     </div>
-    <div class="stat-card">
-      <div class="stat-icon">✨</div>
-      <div class="stat-info">
-        <h3>Можно купить</h3>
-        <p id="canBuyBonus">0</p>
-      </div>
-    </div>
   </div>
   
   <div style="padding:1.5rem;background:rgba(19,19,29,0.7);border-radius:16px;margin:1.5rem 0;border:2px solid rgba(255,215,0,0.3);">
@@ -868,12 +861,9 @@ document.getElementById('buyBonusBtn')?.addEventListener('click',()=>buyBonus())
 function renderBonus(){
   const bonusDisplay=document.getElementById('bonusDisplay');
   const availableBonus=document.getElementById('availableBonus');
-  const canBuyBonus=document.getElementById('canBuyBonus');
-  if(!bonusDisplay||!availableBonus||!canBuyBonus)return;
+  if(!bonusDisplay||!availableBonus)return;
   bonusDisplay.textContent=state.bonusPoints;
   availableBonus.textContent=state.bonusPoints;
-  const canBuy=Number(state.score)/1000000;
-  canBuyBonus.textContent=Math.floor(canBuy);
 }
 
 async function buyBonus(){
@@ -886,11 +876,16 @@ async function buyBonus(){
     state.spentOnBonus+=totalCost;
     state.bonusPoints+=willBuy;
     console.log(`✅ Куплено баллов: ${willBuy}`);
-    await syncBonusToGamestore();
+    
+    // Сохраняем в Firebase (если подключен)
+    if(db&&tgUser){
+      await syncBonusToGamestore();
+    }
+    
     if(TgWebApp?.showPopup){
       TgWebApp.showPopup({
         title:'💎 Баллы куплены!',
-        message:`Куплено: ${willBuy} баллов\n\nБаллы синхронизированы с @gamestoren_bot!`,
+        message:`Куплено: ${willBuy} баллов\n\nВсего баллов: ${state.bonusPoints}`,
         buttons:[{type:'ok'}]
       });
     }
