@@ -877,11 +877,6 @@ async function buyBonus(){
     state.bonusPoints+=willBuy;
     console.log(`✅ Куплено баллов: ${willBuy}`);
     
-    // Сохраняем в Firebase (если подключен)
-    if(db&&tgUser){
-      await syncBonusToGamestore();
-    }
-    
     if(TgWebApp?.showPopup){
       TgWebApp.showPopup({
         title:'💎 Баллы куплены!',
